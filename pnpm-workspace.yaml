@@ -4,3 +4,5 @@ packages:
   - "worker"
   - "shared"
   - "database"
+allowBuilds:
+  esbuild: false
