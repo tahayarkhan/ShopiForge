@@ -5,7 +5,7 @@ export interface ProductInputSnapshot {
     title: string;
     descriptionHtml: string;
     tags: string[];
-  }
+}
   
   export interface MockProduct {
     id: string;
@@ -16,4 +16,13 @@ export interface ProductInputSnapshot {
     productType: string;
     status: 'ACTIVE' | 'DRAFT';
     imageUrl?: string;
-  }
+}
+
+export interface CompareData {
+  productId: string;
+  before: ProductInputSnapshot;
+  after: ProductInputSnapshot & {
+    bulletPoints: string[];
+    seoKeywords: string[];
+  };
+}
