@@ -25,7 +25,7 @@ export interface Product {
     shopifyGid: string;
     title: string;
     descriptionHtml: string | null;
-    tags: string | null;
+    tags: string[] | null;
     vendor: string | null;
     productType: string | null;
     status: string | null;
