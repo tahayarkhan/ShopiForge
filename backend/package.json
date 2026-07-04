@@ -1,24 +1,30 @@
 {
-    "name": "@shopiforge/backend",
-    "version": "0.0.0",
-    "private": true,
-    "type": "module",
-    "scripts": {
-      "dev": "tsx watch src/index.ts",
-      "build": "tsc",
-      "typecheck": "tsc --noEmit"
-    },
-    "dependencies": {
-      "@shopiforge/shared": "workspace:*",
-      "cors": "^2.8.5",
-      "dotenv": "^16.4.7",
-      "express": "^4.21.2"
-    },
-    "devDependencies": {
-      "@types/cors": "^2.8.17",
-      "@types/express": "^5.0.0",
-      "@types/node": "^22.10.0",
-      "tsx": "^4.19.2",
-      "typescript": "^5.7.0"
-    }
+  "name": "@shopiforge/backend",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@shopiforge/shared": "workspace:*",
+    "@shopify/shopify-api": "^13.1.0",
+    "@supabase/supabase-js": "^2.110.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-session": "^1.19.0"
+  },
+  "devDependencies": {
+    "@types/cookie-parser": "^1.4.10",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/express-session": "^1.19.0",
+    "@types/node": "^22.10.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.0"
+  }
 }

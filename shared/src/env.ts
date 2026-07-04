@@ -8,6 +8,16 @@ export const envSchema = z.object({
     DATABASE_URL: z.string().url(),
     SUPABASE_URL: z.string().url().optional(),
     SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
+    SHOPIFY_API_KEY: z.string().min(1),
+    SHOPIFY_API_SECRET: z.string().min(1),
+    SHOPIFY_SCOPES: z.string().default('read_products'),
+    SHOPIFY_APP_URL: z.string().url(),
+    SHOPIFY_API_VERSION: z.string().default('2026-07'),
+    SESSION_SECRET: z.string().min(32),
+    ENCRYPTION_KEY_BASE64: z.string().refine((value) => {
+        return Buffer.from(value, 'base64').length === 32;
+    }, 'ENCRYPTION_KEY_BASE64 must decode to 32 bytes'),
+    // SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;
