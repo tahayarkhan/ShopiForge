@@ -16,8 +16,6 @@ export interface ShopRow {
     updated_at: string;
 }
 
-
-
 export function mapShopRow(row: ShopRow): Shop {
     return {
         id: row.id,
