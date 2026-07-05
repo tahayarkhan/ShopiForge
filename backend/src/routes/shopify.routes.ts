@@ -5,6 +5,7 @@ import { beginInstall, completeInstall } from '../services/shopifyOAuth.service.
 import { normalizeShopDomain } from '../utils/shopifyDomain.js';
 import { findActiveShopById } from '../repositories/shopRepository.js';
 import { toShopSafe } from '../mappers/shopMapper.js';
+import { requireShopAuth, type AuthenticatedRequest, } from '../middleware/requireShopAuth.js';
 
 export const shopifyRouter = Router();
 
@@ -56,27 +57,7 @@ shopifyRouter.get('/auth/callback', async (req, res, next) => {
 
 });
 
-
-
-shopifyRouter.get('/current', async (req, res, next) => {
-    try {
-        const shopId = req.signedCookies?.shopiforge_shop_id;
-
-        if (typeof shopId !== 'string' || shopId.trim() === '') {
-            throw new AppError(401, 'SHOP_AUTH_REQUIRED', 'Shop authentication required');
-        }
-
-        const shop = await findActiveShopById(shopId);
-
-        if (!shop) {
-            throw new AppError(401, 'SHOP_AUTH_REQUIRED', 'Shop authentication required');
-        }
-
-        res.status(200).json({
-            shop: toShopSafe(shop),
-        });
-    } catch (err) {
-        next(err);
-    }
-    
+shopifyRouter.get('/current', requireShopAuth, (req, res) => {
+    const { shop } = req as AuthenticatedRequest;
+    res.status(200).json({ shop });
 });
