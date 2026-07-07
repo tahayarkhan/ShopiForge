@@ -143,3 +143,34 @@ async function executeGraphQL <T>(config: ShopifyClientConfig, query: string, va
     return json.data;
 }
 
+export async function fetchAllProducts( config: ShopifyClientConfig ): Promise<ShopifyProductForSync[]> {
+    const results: ShopifyProductForSync[] = [];
+    let cursor: string | null = null;
+    let hasNextPage = true;
+
+    while (hasNextPage) {
+        type Page = {
+            products: {
+                pageInfo: { hasNextPage: boolean; endCursor: string | null };
+                nodes: GraphQLProductNode[];
+            };
+        };
+        
+        const data: any = await executeGraphQL<Page>(config, PRODUCTS_FOR_SYNC_QUERY, {
+            cursor,
+        });
+
+        const { pageInfo, nodes } = data.products;
+
+        for (const node of nodes) {
+            results.push(mapGraphQLProduct(node));
+            if (results.length >= MAX_PRODUCTS) {
+              return results;
+            }
+        }
+
+        hasNextPage = pageInfo.hasNextPage;
+        cursor = pageInfo.endCursor;
+    }
+    return results;
+}
