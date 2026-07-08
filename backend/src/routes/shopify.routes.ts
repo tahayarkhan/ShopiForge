@@ -41,13 +41,15 @@ shopifyRouter.get('/auth/callback', async (req, res, next) => {
         const shopId = await completeInstall(req, res);
         
         res.cookie('shopiforge_shop_id', shopId, {
-          httpOnly: true,
-          signed: true,
-          sameSite: 'lax',
-          secure:
-            env.NODE_ENV === 'production' ||
-            env.SHOPIFY_APP_URL.startsWith('https'),
-          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+            httpOnly: true,
+            signed: true,
+        //   sameSite: 'lax',
+        //   secure:
+        //     env.NODE_ENV === 'production' ||
+        //     env.SHOPIFY_APP_URL.startsWith('https'),
+            sameSite: 'none',  
+            secure: true,  
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         });
 
         res.redirect(`${env.FRONTEND_URL}/dashboard?installed=1`);
