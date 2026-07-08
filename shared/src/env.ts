@@ -18,6 +18,10 @@ export const envSchema = z.object({
         return Buffer.from(value, 'base64').length === 32;
     }, 'ENCRYPTION_KEY_BASE64 must decode to 32 bytes'),
     // SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
+    GROQ_API_KEY: z.string().min(1),
+    GROQ_MODEL: z.string().default('llama-3.3-70b-versatile'),
+    GROQ_MAX_TOKENS: z.coerce.number().default(2048),
+    GROQ_TEMPERATURE: z.coerce.number().min(0).max(2).default(0.3),
 });
 
 export type Env = z.infer<typeof envSchema>;
