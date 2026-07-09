@@ -68,7 +68,7 @@ export async function markJobProcessing(jobId: string): Promise<Job> {
 export async function markJobCompleted(jobId: string): Promise<Job> {
     const now = new Date().toISOString();
 
-    const { data, error } = supabase 
+    const { data, error } = await supabase 
         .from('jobs')
         .update({
             status: 'completed',
@@ -96,7 +96,7 @@ export async function markJobFailed(
 
     const now = new Date().toISOString();
 
-    const { data, error } = supabase 
+    const { data, error } = await supabase 
         .from('jobs')
         .update({
             status: 'failed',
