@@ -6,6 +6,7 @@ import {
 } from '../middleware/requireShopAuth.js';
 import { listProductsByShop } from '../repositories/productRepository.js';
 import { syncProductsForShop } from '../services/shopifyProductSync.service.js';
+import { getProductCompare } from '../services/productCompare.service.js';
 
 
 export const productsRouter = Router();
@@ -41,5 +42,29 @@ productsRouter.get('/', async (req, res, next) => {
                 ? err 
                 : new AppError(500, 'PRODUCTS_FETCH_FAILED', 'Failed to load products')
         );
+    }
+});
+
+
+productsRouter.get('/:id/compare', async (req, res, next) => {
+    try {
+        const { shop } = req as unknown as AuthenticatedRequest;
+        const productId = req.params.id;
+        const jobId =
+            typeof req.query.jobId === 'string' && req.query.jobId.trim() !== ''
+            ? req.query.jobId
+            : undefined;
+        const result = await getProductCompare({
+            shopId: shop.id,
+            productId,
+            jobId,
+        });
+        res.status(200).json(result);
+    } catch (err) {
+      next(
+        err instanceof AppError
+          ? err
+          : new AppError(500, 'COMPARE_FETCH_FAILED', 'Failed to load compare data'),
+      );
     }
 });
