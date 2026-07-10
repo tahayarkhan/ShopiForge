@@ -68,4 +68,20 @@ export async function upsertProductsForShop(shopId: string, products: UpsertProd
 
 }
 
-
+export async function findProductByIdForShop(
+    productId: string,
+    shopId: string,
+): Promise<Product | null> {
+    const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('id', productId)
+        .eq('shop_id', shopId)
+        .maybeSingle();
+  
+    if (error) {
+        throw new Error(`findProductByIdForShop failed: ${error.message}`);
+    }
+  
+    return data ? mapProductRow(data as ProductRow) : null;
+}
