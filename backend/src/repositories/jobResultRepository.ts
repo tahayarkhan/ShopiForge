@@ -146,30 +146,22 @@ export async function findLatestCompletedResultForProduct( productId: string ): 
 export async function findJobResultForCompare(
     productId: string,
     jobId?: string,
-): Promise<JobResult | null> {
-    
-    let query = supabase
+  ): Promise<JobResult | null> {
+    if (jobId) {
+      const { data, error } = await supabase
         .from('job_results')
         .select('*')
         .eq('product_id', productId)
-        .eq('status', 'completed');
-
-    if (jobId) {
-        query = query.eq('job_id', jobId);
-    } else {
-        query = query.order('created_at', { ascending: false }).limit(1);
-    }
-
-    const { data, error } = await jobId
-        ? await query.maybeSingle()
-        : await query.maybeSingle();
-    
-
-    if (error) {
+        .eq('job_id', jobId)
+        .eq('status', 'completed')
+        .maybeSingle();
+  
+      if (error) {
         throw new Error(`findJobResultForCompare failed: ${error.message}`);
+      }
+  
+      return data ? mapJobResultRow(data as JobResultRow) : null;
     }
-
-    return data ? mapJobResultRow(data as JobResultRow) : null;
-
-}
-
+  
+    return findLatestCompletedResultForProduct(productId);
+  }
