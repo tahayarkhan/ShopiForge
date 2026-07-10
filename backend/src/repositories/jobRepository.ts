@@ -117,3 +117,16 @@ export async function markJobFailed(
 
 }
 
+export async function findJobById(jobId: string): Promise<Job | null> {
+    const { data, error } = await supabase
+        .from('jobs')
+        .select('*')
+        .eq('id', jobId)
+        .maybeSingle();
+    
+    if (error) {
+        throw new Error(`findJobById failed: ${error.message}`);
+    }
+
+    return data ? mapJobRow(data as JobRow) : null;
+} 
