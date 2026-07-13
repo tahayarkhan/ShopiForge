@@ -22,6 +22,8 @@ export const envSchema = z.object({
     GROQ_MODEL: z.string().default('llama-3.3-70b-versatile'),
     GROQ_MAX_TOKENS: z.coerce.number().default(2048),
     GROQ_TEMPERATURE: z.coerce.number().min(0).max(2).default(0.3),
+
+    REDIS_URL: z.string().url().default('redis://localhost:6379'),
 });
 
 export type Env = z.infer<typeof envSchema>;
