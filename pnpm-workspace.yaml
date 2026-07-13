@@ -6,3 +6,4 @@ packages:
   - "database"
 allowBuilds:
   esbuild: false
+  msgpackr-extract: true

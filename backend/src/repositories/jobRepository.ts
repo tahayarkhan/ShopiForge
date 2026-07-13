@@ -130,3 +130,30 @@ export async function findJobById(jobId: string): Promise<Job | null> {
 
     return data ? mapJobRow(data as JobRow) : null;
 } 
+
+export async function setJobBullMeta(
+    jobId: string,
+    queueName: string,
+    bullJobId: string,
+): Promise<Job> {
+
+    const now = new Date().toISOString();
+
+    const { data, error } = await supabase
+        .from('jobs')
+        .update({
+        bull_queue_name: queueName,
+        bull_job_id: bullJobId,
+        updated_at: now,
+        })
+        .eq('id', jobId)
+        .select('*')
+        .single();
+    
+    if (error) {
+        throw new Error(`setJobBullMeta failed: ${error.message}`);
+    }
+
+    return mapJobRow(data as JobRow);
+
+}
