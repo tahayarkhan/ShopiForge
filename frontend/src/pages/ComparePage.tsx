@@ -1,47 +1,147 @@
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import { ComparePanel } from '../components/ComparePanel';
-import { getCompareData } from '../mocks/products';
+import { ApiError, getProductCompare } from '../lib/api';
+import type { CompareData, CompareResponse } from '../types';
+
+type PageState = 'loading' | 'ready' | 'error' | 'not_found';
 
 export function ComparePage() {
   const { id } = useParams();
-  const compareData = id ? getCompareData(id) : undefined;
+  const [searchParams] = useSearchParams();
+  const jobId = searchParams.get('jobId') ?? undefined;
 
-  if (!compareData) {
+  const [state, setState] = useState<PageState>('loading');
+  const [error, setError] = useState<string | null>(null);
+  const [compare, setCompare] = useState<CompareResponse | null>(null);
+
+  useEffect(() => {
+    if (!id) {
+      setState('not_found');
+      return;
+    }
+
+    let cancelled = false;
+
+    async function load() {
+      setState('loading');
+      setError(null);
+
+      try {
+        const data = await getProductCompare(id!, jobId);
+        if (cancelled) return;
+        setCompare(data);
+        setState('ready');
+      } catch (err) {
+        if (cancelled) return;
+
+        if (err instanceof ApiError && err.status === 404) {
+          setState('not_found');
+          setError(err.message);
+          return;
+        }
+
+        setError(err instanceof Error ? err.message : 'Failed to load compare data');
+        setState('error');
+      }
+    }
+
+    load();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [id, jobId]);
+
+  if (state === 'loading') {
     return (
       <div>
         <Link to="/dashboard" className="text-sm text-blue-600 hover:underline">
           Back to dashboard
         </Link>
+        <p className="mt-6 text-slate-600">Loading compare data...</p>
+      </div>
+    );
+  }
 
+
+  if (state === 'not_found' || !compare) {
+    return (
+      <div>
+        <Link to="/dashboard" className="text-sm text-blue-600 hover:underline">
+          Back to dashboard
+        </Link>
         <div className="mt-6 rounded-lg border border-slate-200 bg-white p-6">
-          <h1 className="text-xl font-semibold text-slate-900">Product not found</h1>
+          <h1 className="text-xl font-semibold text-slate-900">
+            No optimization result found
+          </h1>
           <p className="mt-2 text-slate-600">
-            No mock compare data exists for this product.
+            {error ??
+              'Optimize this product from the dashboard to generate a before/after comparison.'}
           </p>
+          <Link
+            to="/dashboard"
+            className="mt-4 inline-block text-sm font-medium text-blue-600 hover:underline"
+          >
+            Back to dashboard →
+          </Link>
         </div>
       </div>
     );
   }
+
+
+  if (state === 'error') {
+    return (
+      <div>
+        <Link to="/dashboard" className="text-sm text-blue-600 hover:underline">
+          Back to dashboard
+        </Link>
+        <p className="mt-6 text-sm text-red-600" role="alert">
+          {error}
+        </p>
+      </div>
+    );
+  }
+
+
+  const compareData: CompareData = {
+    productId: compare.productId,
+    before: compare.before,
+    after: compare.after,
+  };
+  
+  const showFallbackWarning = compare.usedFallback || compare.validationErrors != null;
+
+  
 
   return (
     <div>
       <Link to="/dashboard" className="text-sm text-blue-600 hover:underline">
         Back to dashboard
       </Link>
-
       <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Product Compare</h1>
           <p className="mt-1 text-slate-600">
-            Review the original listing beside the simulated optimized version.
+            Review the original listing beside the AI-optimized version.
           </p>
         </div>
-
         <span className="w-fit rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-700">
-          Preview - AI optimization simulated
+          AI optimization result
         </span>
       </div>
-
+      {showFallbackWarning && (
+        <div
+          className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-4"
+          role="status"
+        >
+          <p className="text-amber-900">
+            AI output required fallback formatting. Review carefully before any
+            future Shopify push.
+          </p>
+        </div>
+      )}
       <div className="mt-6">
         <ComparePanel compareData={compareData} />
       </div>
