@@ -79,3 +79,26 @@ export interface ApiErrorBody {
     code: string;
   };
 }
+
+export interface OptimizeProductResponse {
+  jobId: string;
+  jobResultId: string;
+  status: 'completed' | 'failed';
+  usedFallback: boolean;
+  compareUrl: string;
+}
+
+export interface CompareResponse {
+  productId: string;
+  jobId: string;
+  tone: string;
+  before: ProductInputSnapshot;
+  after: ProductInputSnapshot & {
+    bulletPoints: string[];
+    seoKeywords: string[];
+  };
+  usedFallback: boolean;
+  validationErrors: Record<string, unknown> | null;
+  shopifyPushStatus: string;
+  createdAt: string;
+}
