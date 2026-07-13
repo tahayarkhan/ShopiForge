@@ -1,5 +1,7 @@
 import type {
     ApiErrorBody,
+    CompareResponse,
+    OptimizeProductResponse,
     Product,
     ProductSyncSummary,
     ShopSafe,
@@ -78,4 +80,23 @@ export async function syncProducts(): Promise<ProductSyncSummary> {
     return apiFetch<ProductSyncSummary>('/products/sync', {
       method: 'POST',
     });
- }
+}
+
+export async function optimizeProduct(
+    productId: string,
+    tone: 'default' | 'premium' | 'casual' | 'luxury' = 'default',
+): Promise<OptimizeProductResponse> {
+    return apiFetch<OptimizeProductResponse>('/optimize/product', {
+        method: 'POST',
+        body: JSON.stringify({ productId, tone }),
+    })
+}
+
+export async function getProductCompare(
+    productId: string,
+    jobId?: string,
+): Promise<CompareResponse> {
+    const query = jobId ? `?jobId=${encodeURIComponent(jobId)}` : '';
+    return apiFetch<CompareResponse>(`/products/${productId}/compare${query}`);
+}
+
