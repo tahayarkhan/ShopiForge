@@ -1,20 +1,20 @@
-import type { ToneVariant } from '@shopiforge/shared';
-import { AppError } from '../middleware/errorHandler.js';
 import {
-  createSingleOptimizeJob,
-  markJobCompleted,
-  markJobFailed,
-  markJobProcessing,
-} from '../repositories/jobRepository.js';
-import {
-  completeJobResult,
-  createJobResult,
-  failJobResult,
-  markJobResultProcessing,
-} from '../repositories/jobResultRepository.js';
-import { findProductByIdForShop } from '../repositories/productRepository.js';
-import { buildInputSnapshot } from '../utils/inputSnapshot.js';
-import { optimizeProductListing } from './aiOrchestrator.service.js';
+    OPTIMIZE_PRODUCT_QUEUE,
+    type ToneVariant,
+  } from '@shopiforge/shared';
+  import { AppError } from '../middleware/errorHandler.js';
+  import { enqueueOptimizeProductJob } from '../queue/optimizeProduct.queue.js';
+  import {
+    createSingleOptimizeJob,
+    setJobBullMeta,
+  } from '../repositories/jobRepository.js';
+  import {
+    createJobResult,
+    findActiveJobResultForProduct, // optional — see 4.3
+  } from '../repositories/jobResultRepository.js';
+  import { findProductByIdForShop } from '../repositories/productRepository.js';
+  import { buildInputSnapshot } from '../utils/inputSnapshot.js';
+  
 
 const ALLOWED_TONES: ToneVariant[] = ['default', 'premium', 'casual', 'luxury'];
 
@@ -28,8 +28,8 @@ export interface OptimizeProductRequest {
 export interface OptimizeProductResponse {
     jobId: string;
     jobResultId: string;
-    status: 'completed';
-    usedFallback: boolean;
+    status: 'pending';
+    pollUrl: string;
     compareUrl: string;
 }
 
@@ -55,6 +55,18 @@ export async function optimizeProductForShop(input: OptimizeProductRequest): Pro
         throw new AppError(404, 'PRODUCT_NOT_FOUND', 'Product not found');
     }
 
+
+    const active = await findActiveJobResultForProduct(product.id);
+
+    if (active) {
+        throw new AppError(
+          409,
+          'JOB_IN_PROGRESS',
+          'An optimization job is already pending or processing for this product',
+        );
+    }
+
+
     const inputSnapshot = buildInputSnapshot(product);
 
     const job = await createSingleOptimizeJob({
@@ -68,52 +80,23 @@ export async function optimizeProductForShop(input: OptimizeProductRequest): Pro
         inputSnapshot,
     });
 
-    await markJobProcessing(job.id);
-    await markJobResultProcessing(jobResult.id);
+    await enqueueOptimizeProductJob({
+        jobId: job.id,
+        jobResultId: jobResult.id,
+        shopId: input.shopId,
+        productId: product.id,
+        tone,
+    });
 
-    try {
-        const result = await optimizeProductListing({
-            title: product.title,
-            descriptionHtml: product.descriptionHtml ?? '',
-            tags: product.tags ?? [],
-            vendor: product.vendor,
-            productType: product.productType,
-            variantsSummary: product.variantsSummary.map((variant) => ({
-                title: variant.title,
-                price: variant.price,
-                sku: variant.sku,
-            })),
-            tone,
-        });
-
-        await completeJobResult({
-            jobResultId: jobResult.id,
-            rawAiOutput: result.rawAiOutput,
-            output: result.output,
-            validationErrors: result.validationErrors,
-            repairAttempts: result.repairAttempts,
-            processingMs: result.processingMs,
-        });
-
-        await markJobCompleted(job.id);
+    await setJobBullMeta(job.id, OPTIMIZE_PRODUCT_QUEUE, job.id);
 
 
-        return {
-            jobId: job.id,
-            jobResultId: jobResult.id,
-            status: 'completed',
-            usedFallback: result.usedFallback,
-            compareUrl: `/products/${product.id}/compare?jobId=${job.id}`,
-        };
-    } catch (err) {
-        const message = err instanceof Error ? err.message : 'Product optimization failed';
-
-        await failJobResult(jobResult.id, message);
-        await markJobFailed(job.id, message);
-        
-        throw err instanceof AppError
-            ? err
-            : new AppError(500, 'OPTIMIZE_FAILED', message);
-    }
+    return {
+        jobId: job.id,
+        jobResultId: jobResult.id,
+        status: 'pending',
+        pollUrl: `/jobs/${job.id}`,
+        compareUrl: `/products/${product.id}/compare?jobId=${job.id}`,
+    };
 
 }

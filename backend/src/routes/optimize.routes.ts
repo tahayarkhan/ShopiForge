@@ -27,7 +27,7 @@ optimizeRouter.post('/product', async (req, res, next) => {
             tone,
         });
 
-        res.status(200).json(result);
+        res.status(202).json(result);
 
     } catch (err) {
         next(

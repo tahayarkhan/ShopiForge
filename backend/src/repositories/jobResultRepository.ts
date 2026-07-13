@@ -164,4 +164,24 @@ export async function findJobResultForCompare(
     }
   
     return findLatestCompletedResultForProduct(productId);
-  }
+}
+
+export async function findActiveJobResultForProduct(productId: string): Promise<JobResult | null> {
+    const { data, error } = await supabase
+        .from('job_results')
+        .select('*')
+        .eq('product_id', productId)
+        .in('status', ['pending', 'processing'])
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+    
+    if (error) {
+        throw new Error(
+            `findActiveJobResultForProduct failed: ${error.message}`,
+        );
+    }
+
+    return data ? mapJobResultRow(data as JobResultRow) : null;
+
+}
