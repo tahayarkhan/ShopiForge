@@ -1,11 +1,60 @@
 import './loadEnv.js';
-import { parseEnv } from '@shopiforge/shared';
-// Ensure processor module typechecks when imported:
+import { Worker } from 'bullmq';
+import {
+  OPTIMIZE_PRODUCT_QUEUE,
+  parseEnv,
+  type OptimizeProductJobPayload,
+} from '@shopiforge/shared';
+import { createRedisConnection } from './queue/connection.js';
 import { processOptimizeProductJob } from './processors/optimizeProduct.processor.js';
+import {
+  failJobResult,
+} from './repositories/jobResultRepository.js';
+import { markJobFailed } from './repositories/jobRepository.js';
 
+// Must load .env before parseEnv / Redis
 const env = parseEnv();
+const connection = createRedisConnection();
 
-console.log(`[worker] started (${env.NODE_ENV})`);
-console.log('[worker] processor loaded — BullMQ Worker registration is Step 6');
+const worker = new Worker<OptimizeProductJobPayload>(
+  OPTIMIZE_PRODUCT_QUEUE,
+  async (job) => {
+    // job.data = the payload backend enqueued in Step 4
+    await processOptimizeProductJob(job.data);
+  },
+  {
+    connection: {
+        url: env.REDIS_URL,
+        maxRetriesPerRequest: null,
+      },
+    concurrency: 5,
+  },
+);
 
-void processOptimizeProductJob; // silence unused until Step 6 wires Worker
+
+worker.on('completed', (job) => {
+  console.log(`[worker] completed ${job.id}`);
+});
+
+worker.on('failed', async (job, err) => {
+  console.error(`[worker] failed ${job?.id}:`, err.message);
+
+  // After all BullMQ attempts are exhausted, mark DB as failed
+  const attempts = job?.opts.attempts ?? 1;
+  const attemptsMade = job?.attemptsMade ?? 0;
+
+  if (job && attemptsMade >= attempts) {
+    const { jobId, jobResultId } = job.data;
+    try {
+      await failJobResult(jobResultId, err.message);
+      await markJobFailed(jobId, err.message);
+      console.error(`[worker] marked DB failed for ${jobId}`);
+    } catch (dbErr) {
+      console.error(`[worker] could not mark DB failed:`, dbErr);
+    }
+  }
+});
+
+console.log(
+  `[worker] listening on ${OPTIMIZE_PRODUCT_QUEUE} (${env.NODE_ENV})`,
+);
