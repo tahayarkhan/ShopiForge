@@ -101,3 +101,8 @@ export async function getProductCompare(
     return apiFetch<CompareResponse>(`/products/${productId}/compare${query}`);
 }
 
+export async function getJob(jobId: string): Promise<JobStatusResponse> {
+    return apiFetch<JobStatusResponse>(`/jobs/${encodeURIComponent(jobId)}`);
+}
+
+
