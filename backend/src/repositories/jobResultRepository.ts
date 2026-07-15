@@ -185,3 +185,17 @@ export async function findActiveJobResultForProduct(productId: string): Promise<
     return data ? mapJobResultRow(data as JobResultRow) : null;
 
 }
+
+export async function listJobResultsByJobId(jobId: string): Promise<JobResult[]> {
+    const { data, error } = await supabase
+        .from('job_results')
+        .select('*')
+        .eq('job_id', jobId)
+        .order('created_at', { ascending: true });
+
+    if (error) {
+        throw new Error(`listJobResultsByJobId failed: ${error.message}`);
+    }
+    
+    return (data as JobResultRow[]).map(mapJobResultRow);
+}

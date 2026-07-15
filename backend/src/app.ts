@@ -7,6 +7,7 @@ import { healthRouter } from './routes/health.routes.js';
 import { shopifyRouter } from './routes/shopify.routes.js';
 import { productsRouter } from './routes/products.routes.js';
 import { optimizeRouter } from './routes/optimize.routes.js';
+import { jobsRouter } from './routes/jobs.routes.js';
 
 
 export function createApp() {
@@ -25,6 +26,7 @@ export function createApp() {
     app.use('/api/v1/shopify', shopifyRouter);
     app.use('/api/v1/products', productsRouter);
     app.use('/api/v1/optimize', optimizeRouter);
+    app.use('/api/v1/jobs', jobsRouter); 
     app.use(errorHandler);
 
     return app;
