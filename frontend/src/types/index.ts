@@ -80,13 +80,6 @@ export interface ApiErrorBody {
   };
 }
 
-export interface OptimizeProductResponse {
-  jobId: string;
-  jobResultId: string;
-  status: 'completed' | 'failed';
-  usedFallback: boolean;
-  compareUrl: string;
-}
 
 export interface CompareResponse {
   productId: string;
@@ -101,4 +94,46 @@ export interface CompareResponse {
   validationErrors: Record<string, unknown> | null;
   shopifyPushStatus: string;
   createdAt: string;
+}
+
+export type JobStatus =
+  | 'pending'
+  | 'processing'
+  | 'completed'
+  | 'failed'
+  | 'partial';
+
+export interface JobResultSummary {
+  jobResultId: string;
+  productId: string;
+  productTitle: string;
+  status: string;
+  errorMessage?: string | null;
+  usedFallback?: boolean | null;
+  compareUrl?: string | null;
+}
+
+export interface JobStatusResponse {
+  id: string;
+  type: 'single' | 'batch' | 'sync';
+  status: JobStatus;
+  tone: string;
+  totalCount: number;
+  completedCount: number;
+  failedCount: number;
+  progressPercent: number;
+  errorMessage: string | null;
+  createdAt: string;
+  startedAt: string | null;
+  completedAt: string | null;
+  results: JobResultSummary[];
+}
+
+// Phase 4 async optimize response (was completed + usedFallback)
+export interface OptimizeProductResponse {
+  jobId: string;
+  jobResultId: string;
+  status: 'pending';
+  pollUrl: string;
+  compareUrl: string;
 }

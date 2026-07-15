@@ -1,6 +1,7 @@
 import type {
     ApiErrorBody,
     CompareResponse,
+    JobStatusResponse,
     OptimizeProductResponse,
     Product,
     ProductSyncSummary,
