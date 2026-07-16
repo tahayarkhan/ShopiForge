@@ -2,19 +2,19 @@ import type { OptimizeProductJobPayload } from '@shopiforge/shared';
 import {
   claimJobForProcessing,
   markJobCompleted,
-  markJobFailed,
+  markParentProcessingIfPending,
+  recordChildCompletedOnParent,
 } from '../repositories/jobRepository.js';
 import {
   claimJobResultForProcessing,
   completeJobResult,
-  failJobResult,
   findJobResultById,
 } from '../repositories/jobResultRepository.js';
 import { optimizeProductListing } from '../services/aiOrchestrator.service.js';
 
 
 export async function processOptimizeProductJob(payload: OptimizeProductJobPayload): Promise<void> {
-    const { jobId, jobResultId, tone } = payload;
+    const { jobId, jobResultId, tone, parentJobId } = payload;
 
     const claimedJob = await claimJobForProcessing(jobId);
     const claimedResult = await claimJobResultForProcessing(jobResultId);
@@ -25,6 +25,11 @@ export async function processOptimizeProductJob(payload: OptimizeProductJobPaylo
           );
         return;
     }
+
+    if (parentJobId) {
+        await markParentProcessingIfPending(parentJobId);
+    }
+
 
     const jobResult =
         claimedResult.inputSnapshot != null
@@ -56,6 +61,11 @@ export async function processOptimizeProductJob(payload: OptimizeProductJobPaylo
         });
 
         await markJobCompleted(jobId);
+
+        if (parentJobId) {
+            await recordChildCompletedOnParent(parentJobId);
+        }
+
     
     } catch (err) {
         const message = err instanceof Error ? err.message : 'Product optimization failed';

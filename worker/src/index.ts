@@ -5,16 +5,15 @@ import {
   parseEnv,
   type OptimizeProductJobPayload,
 } from '@shopiforge/shared';
-import { createRedisConnection } from './queue/connection.js';
 import { processOptimizeProductJob } from './processors/optimizeProduct.processor.js';
+import { failJobResult } from './repositories/jobResultRepository.js';
 import {
-  failJobResult,
-} from './repositories/jobResultRepository.js';
-import { markJobFailed } from './repositories/jobRepository.js';
+  markJobFailed,
+  recordChildFailedOnParent,
+} from './repositories/jobRepository.js';
 
 // Must load .env before parseEnv / Redis
 const env = parseEnv();
-const connection = createRedisConnection();
 
 const worker = new Worker<OptimizeProductJobPayload>(
   OPTIMIZE_PRODUCT_QUEUE,
@@ -44,10 +43,16 @@ worker.on('failed', async (job, err) => {
   const attemptsMade = job?.attemptsMade ?? 0;
 
   if (job && attemptsMade >= attempts) {
-    const { jobId, jobResultId } = job.data;
+    const { jobId, jobResultId, parentJobId } = job.data;
     try {
       await failJobResult(jobResultId, err.message);
       await markJobFailed(jobId, err.message);
+
+      if (parentJobId) {
+        await recordChildFailedOnParent(parentJobId);
+      }
+
+
       console.error(`[worker] marked DB failed for ${jobId}`);
     } catch (dbErr) {
       console.error(`[worker] could not mark DB failed:`, dbErr);

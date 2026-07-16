@@ -79,3 +79,67 @@ export async function markJobFailed(
     return mapJobRow(data as JobRow);
 
 }
+
+export async function markParentProcessingIfPending(
+    parentJobId: string,
+): Promise<void> {
+
+    const { error } = await supabase.rpc('mark_job_processing_if_pending', {
+        p_job_id: parentJobId,
+    });
+
+    if (error) {
+        throw new Error(
+            `markParentProcessingIfPending failed: ${error.message}`,
+        );
+    }
+}
+
+export async function recordChildCompletedOnParent(
+    parentJobId: string,
+): Promise<Job> {
+
+    const { data, error }  = await supabase.rpc(
+        'increment_job_completed_count',
+        { p_job_id: parentJobId },
+    );
+
+    if (error) {
+        throw new Error(
+          `recordChildCompletedOnParent failed: ${error.message}`,
+        );
+    }
+
+    const row = Array.isArray(data) ? data[0] : data;
+
+
+    if (!row) {
+        throw new Error('recordChildCompletedOnParent returned no row');
+    }
+
+
+    return mapJobRow(row as JobRow);
+
+}
+
+export async function recordChildFailedOnParent(
+    parentJobId: string,
+): Promise<Job> {
+
+    const { data, error } = await supabase.rpc(
+        'increment_job_failed_count',
+        { p_job_id: parentJobId },
+    );
+
+    if (error) {
+        throw new Error(`recordChildFailedOnParent failed: ${error.message}`);
+    }
+
+    const row = Array.isArray(data) ? data[0] : data;
+
+    if (!row) {
+        throw new Error('recordChildFailedOnParent returned no row');
+    }
+
+    return mapJobRow(row as JobRow);
+}
