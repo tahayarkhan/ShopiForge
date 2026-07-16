@@ -6,4 +6,5 @@ export interface OptimizeProductJobPayload {
     shopId: string;
     productId: string;
     tone: ToneVariant;
+    parentJobId?: string | null;
 }
