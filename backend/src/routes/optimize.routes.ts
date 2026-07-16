@@ -5,6 +5,7 @@ import {
   type AuthenticatedRequest,
 } from '../middleware/requireShopAuth.js';
 import { optimizeProductForShop } from '../services/optimizeProduct.service.js';
+import { optimizeBatchForShop } from '../services/optimizeBatch.service.js';
 
 
 export const optimizeRouter = Router();
@@ -39,3 +40,28 @@ optimizeRouter.post('/product', async (req, res, next) => {
 });
 
 
+
+optimizeRouter.post('/batch', async (req, res, next) => {
+
+    try {
+        const { shop } = req as AuthenticatedRequest;
+        const { productIds, tone, idempotencyKey} = req.body ?? {};
+
+        const result = await optimizeBatchForShop({
+            shopId: shop.id,
+            productIds,
+            tone,
+            idempotencyKey,
+        });
+
+        res.status(202).json(result);
+
+    } catch (err) {
+        next(
+            err instanceof AppError
+              ? err
+              : new AppError(500, 'OPTIMIZE_BATCH_FAILED', 'Batch optimization failed'),
+        );
+    }
+
+});
