@@ -199,3 +199,28 @@ export async function listJobResultsByJobId(jobId: string): Promise<JobResult[]>
     
     return (data as JobResultRow[]).map(mapJobResultRow);
 }
+
+
+export async function findActiveJobResultsForProducts(
+    productIds: string[]
+): Promise<JobResult[]> {
+    
+    if (productIds.length === 0) {
+        return [];
+    }
+
+    const { data, error } = await supabase
+        .from('job_results')
+        .select('*')
+        .in('product_id', productIds)
+        .in('status', ['pending', 'processing']);
+
+    if (error) {
+        throw new Error(
+            `findActiveJobResultsForProducts failed: ${error.message}`,
+        );
+    }
+
+    return (data as JobResultRow[]).map(mapJobResultRow);
+        
+}

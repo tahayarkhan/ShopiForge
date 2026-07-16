@@ -7,6 +7,19 @@ export interface CreateSingleOptimizeJobInput {
     tone: ToneVariant;
 }
 
+export interface CreateBatchParentJobInput {
+    shopId: string;
+    tone: ToneVariant;
+    totalCount: number;
+    idempotencyKey: string;
+}
+  
+export interface CreateChildOptimizeJobInput {
+    shopId: string;
+    tone: ToneVariant;
+    parentJobId: string;
+}
+
 export async function createSingleOptimizeJob(
     input: CreateSingleOptimizeJobInput
 ): Promise<Job> {
@@ -156,4 +169,112 @@ export async function setJobBullMeta(
 
     return mapJobRow(data as JobRow);
 
+}
+
+export async function createBatchParentJob(
+    input: CreateBatchParentJobInput,
+): Promise<Job> {
+    
+    const now = new Date().toISOString();
+
+    const { data, error } = await supabase
+        .from('jobs')
+        .insert({
+            shop_id: input.shopId,
+            type: 'batch',
+            status: 'pending',
+            parent_job_id: null,
+            tone: input.tone,
+            push_to_shopify: false,
+            total_count: input.totalCount,
+            completed_count: 0,
+            failed_count: 0,
+            bull_queue_name: null,
+            bull_job_id: null,
+            idempotency_key: input.idempotencyKey,
+            metadata: {},
+            created_at: now,
+            updated_at: now,
+        })
+        .select('*')
+        .single();
+
+    if (error) {
+        throw new Error(`createBatchParentJob failed: ${error.message}`);
+    }
+
+    return mapJobRow(data as JobRow);
+
+}
+
+export async function createChildOptimizeJob(
+    input: CreateChildOptimizeJobInput
+): Promise<Job> {
+
+    const now = new Date().toISOString();
+
+
+    const { data, error } = await supabase
+        .from('jobs')
+        .insert({
+            shop_id: input.shopId,
+            type: 'single',
+            status: 'pending',
+            parent_job_id: input.parentJobId,
+            tone: input.tone,
+            push_to_shopify: false,
+            total_count: 1,
+            completed_count: 0,
+            failed_count: 0,
+            bull_queue_name: null,
+            bull_job_id: null,
+            idempotency_key: null,
+            metadata: {},
+            created_at: now,
+            updated_at: now,
+        })
+        .select('*')
+        .single();
+
+    if (error) {
+        throw new Error(`createChildOptimizeJob failed: ${error.message}`);
+    }
+
+    return mapJobRow(data as JobRow);
+ 
+}
+
+
+export async function findJobByIdempotencyKey(
+    key: string
+): Promise<Job | null> {
+
+    const { data, error } = await supabase
+        .from('jobs')
+        .select('*')
+        .eq('idempotency_key', key)
+        .maybeSingle();
+
+    if (error) {
+        throw new Error(`findJobByIdempotencyKey failed: ${error.message}`);
+    }
+
+    return data ? mapJobRow(data as JobRow) : null;
+
+}
+
+export async function listChildJobsByParentId(
+    parentJobId: string,
+  ): Promise<Job[]> {
+    const { data, error } = await supabase
+      .from('jobs')
+      .select('*')
+      .eq('parent_job_id', parentJobId)
+      .order('created_at', { ascending: true });
+  
+    if (error) {
+      throw new Error(`listChildJobsByParentId failed: ${error.message}`);
+    }
+  
+    return (data as JobRow[]).map(mapJobRow);
 }
