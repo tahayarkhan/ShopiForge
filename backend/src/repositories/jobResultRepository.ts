@@ -200,6 +200,28 @@ export async function listJobResultsByJobId(jobId: string): Promise<JobResult[]>
     return (data as JobResultRow[]).map(mapJobResultRow);
 }
 
+export async function listJobResultsByJobIds(jobIds: string[]): Promise<JobResult[]> {
+    if (jobIds.length === 0) {
+        return [];
+    }
+
+    const { data, error } = await supabase
+        .from('job_results')
+        .select('*')
+        .in('job_id', jobIds)
+        .order('created_at', { ascending: true });
+    
+    
+    if (error) {
+        throw new Error(`listJobResultsByJobIds failed: ${error.message}`);
+    }
+
+    return (data as JobResultRow[]).map(mapJobResultRow);
+
+}
+
+
+
 
 export async function findActiveJobResultsForProducts(
     productIds: string[]

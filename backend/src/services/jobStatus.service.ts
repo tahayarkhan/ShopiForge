@@ -1,7 +1,13 @@
 import type { Job, JobResult, JobStatus } from '@shopiforge/shared';
 import { AppError } from '../middleware/errorHandler.js';
-import { findJobById } from '../repositories/jobRepository.js';
-import { listJobResultsByJobId } from '../repositories/jobResultRepository.js';
+import {
+  findJobById,
+  listChildJobsByParentId,
+} from '../repositories/jobRepository.js';
+import {
+  listJobResultsByJobId,
+  listJobResultsByJobIds,
+} from '../repositories/jobResultRepository.js';
 import { findProductByIdForShop } from '../repositories/productRepository.js';
 
 export interface JobResultSummary {
@@ -30,20 +36,46 @@ export interface JobStatusResponse {
     results: JobResultSummary[];
 }
 
-function progressPercentForJob(status: JobStatus): number {
+function progressPercentForSingle(status: JobStatus): number {
     switch (status) {
-        case 'pending':
-            return 0;
-        case 'processing':
-            return 50;
-        case 'completed':
-        case 'failed':
-        case 'partial':
-            return 100;
-        default:
-            return 0;
+      case 'pending':
+        return 0;
+      case 'processing':
+        return 50;
+      case 'completed':
+      case 'failed':
+      case 'partial':
+        return 100;
+      default:
+        return 0;
     }
 }
+
+function progressPercentForBatch(job: Job): number {
+    if (
+        job.status === 'completed' ||
+        job.status === 'failed' ||
+        job.status === 'partial'
+    ) {
+        return 100;
+    }
+
+    if (job.totalCount <= 0) return 0;
+
+    const done = job.completedCount + job.failedCount;
+
+    return Math.min(100, Math.round((done / job.totalCount) * 100));
+
+}
+
+
+function progressPercentForJob(job: Job): number {
+    if (job.type === 'batch') {
+      return progressPercentForBatch(job);
+    }
+    return progressPercentForSingle(job.status);
+}
+
 
 function usedFallbackFromResult(result: JobResult): boolean | null {
     if (result.status !== 'completed') return null;
@@ -64,6 +96,40 @@ function usedFallbackFromResult(result: JobResult): boolean | null {
     
 }
 
+async function buildResultSummaries(input: {
+    shopId: string;
+    jobResults: JobResult[];
+}): Promise<JobResultSummary[]> {
+
+    const results: JobResultSummary[] = [];
+
+    for (const result of input.jobResults) {
+        const product = await findProductByIdForShop(
+            result.productId,
+            input.shopId,
+        );
+
+        const productTitle = product?.title ?? result.inputSnapshot?.title ?? 'Unknown product';
+
+        const owningJobId = result.jobId;
+
+        results.push({
+            jobResultId: result.id,
+            productId: result.productId,
+            productTitle,
+            status: result.status,
+            errorMessage: result.errorMessage,
+            usedFallback: usedFallbackFromResult(result),
+            compareUrl:
+              result.status === 'completed'
+                ? `/products/${result.productId}/compare?jobId=${owningJobId}`
+                : null,
+        });
+    }
+
+    return results;
+}
+
 
 export async function getJobStatusForShop(input: {
     shopId: string;
@@ -76,29 +142,22 @@ export async function getJobStatusForShop(input: {
         throw new AppError(404, 'JOB_NOT_FOUND', 'Job not found');
     }
 
-    const jobResults = await listJobResultsByJobId(job.id);
+    let jobResults: JobResult[];
 
-    const results: JobResultSummary[] = [];
-
-    for (const result of jobResults) {
-        const product = await findProductByIdForShop(result.productId, input.shopId);
-
-        const productTitle = product?.title ?? result.inputSnapshot?.title ?? 'Unknown product';
-
-        results.push({
-            jobResultId: result.id,
-            productId: result.productId,
-            productTitle,
-            status: result.status,
-            errorMessage: result.errorMessage,
-            usedFallback: usedFallbackFromResult(result),
-            compareUrl:
-              result.status === 'completed'
-                ? `/products/${result.productId}/compare?jobId=${job.id}`
-                : null,
-        });
-
+    if (job.type === 'batch') {
+        const children = await listChildJobsByParentId(job.id)
+        jobResults = await listJobResultsByJobIds(children.map((c) => c.id));
+    } else {
+        jobResults = await listJobResultsByJobId(job.id);
     }
+
+
+    const results = await buildResultSummaries({
+        shopId: input.shopId, 
+        jobResults,
+    });
+
+    
 
     return {
         id: job.id,
@@ -108,7 +167,7 @@ export async function getJobStatusForShop(input: {
         totalCount: job.totalCount,
         completedCount: job.completedCount,
         failedCount: job.failedCount,
-        progressPercent: progressPercentForJob(job.status),
+        progressPercent: progressPercentForJob(job),
         errorMessage: job.errorMessage,
         createdAt: job.createdAt,
         startedAt: job.startedAt,
