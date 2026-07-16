@@ -137,3 +137,11 @@ export interface OptimizeProductResponse {
   pollUrl: string;
   compareUrl: string;
 }
+
+export interface OptimizeBatchResponse {
+  jobId: string;
+  status: 'pending';
+  type: 'batch';
+  totalCount: number;
+  pollUrl: string;
+}

@@ -2,6 +2,7 @@ import type {
     ApiErrorBody,
     CompareResponse,
     JobStatusResponse,
+    OptimizeBatchResponse,
     OptimizeProductResponse,
     Product,
     ProductSyncSummary,
@@ -106,3 +107,19 @@ export async function getJob(jobId: string): Promise<JobStatusResponse> {
 }
 
 
+export async function optimizeBatch(
+    productIds: string[],
+    tone: 'default' | 'premium' | 'casual' | 'luxury' = 'default',
+    idempotencyKey?: string,
+): Promise<OptimizeBatchResponse> {
+
+    return apiFetch<OptimizeBatchResponse>('/optimize/batch', {
+        method: 'POST',
+        body: JSON.stringify({
+          productIds,
+          tone,
+          ...(idempotencyKey ? { idempotencyKey } : {}),
+        }),
+    });
+
+}
