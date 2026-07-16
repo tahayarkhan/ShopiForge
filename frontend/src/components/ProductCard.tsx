@@ -5,6 +5,9 @@ import type { Product } from '../types';
 
 interface ProductCardProps {
   product: Product;
+  selected?: boolean;
+  onToggleSelect?: (productId: string) => void;
+  selectionDisabled?: boolean; // true when at max and this card isn't selected
 }
 
 function formatSyncedAt(iso: string | null): string {
@@ -12,7 +15,12 @@ function formatSyncedAt(iso: string | null): string {
   return new Date(iso).toLocaleString();
 }
 
-export function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({ 
+  product,
+  selected = false,
+  onToggleSelect,
+  selectionDisabled = false,
+}: ProductCardProps) {
 
   const navigate = useNavigate();
   const imageUrl = product.images[0]?.url;
@@ -43,7 +51,27 @@ export function ProductCard({ product }: ProductCardProps) {
 
 
   return (
-    <article className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+    <article
+      className={`overflow-hidden rounded-lg border bg-white shadow-sm ${
+        selected ? 'border-slate-900' : 'border-slate-200'
+      }`}
+    >
+      <div className="flex items-start gap-2 p-3 pb-0">
+        {onToggleSelect && (
+          <label className="flex cursor-pointer items-center gap-2 pt-1">
+            <input
+              type="checkbox"
+              checked={selected}
+              disabled={selectionDisabled && !selected}
+              onChange={() => onToggleSelect(product.id)}
+              className="h-4 w-4 rounded border-slate-300"
+              aria-label={`Select ${product.title}`}
+            />
+          </label>
+        )}
+      </div>
+      
+      
       {imageUrl ? (
         <img
           src={imageUrl}
