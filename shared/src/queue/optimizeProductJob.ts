@@ -7,4 +7,5 @@ export interface OptimizeProductJobPayload {
     productId: string;
     tone: ToneVariant;
     parentJobId?: string | null;
+    pushToShopify?: boolean;
 }

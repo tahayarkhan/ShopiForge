@@ -15,6 +15,7 @@ export interface ProductInputSnapshot {
     title: string;
     descriptionHtml: string;
     tags: string[];
+    shopifyUpdatedAt?: string | null;
 }
 
 

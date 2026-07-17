@@ -5,5 +5,6 @@ export function buildInputSnapshot(product: Product): ProductInputSnapshot {
         title: product.title,
         descriptionHtml: product.descriptionHtml ?? '',
         tags: product.tags ?? [],
+        shopifyUpdatedAt: product.shopifyUpdatedAt,
     }
 }
