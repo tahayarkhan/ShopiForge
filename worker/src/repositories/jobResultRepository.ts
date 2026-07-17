@@ -105,3 +105,81 @@ export async function failJobResult(
     
     return mapJobResultRow(data as JobResultRow);
 }
+
+export async function markShopifyPushPending(jobResultId: string): Promise<void> {
+
+    const now = new Date().toISOString;
+
+    const { error } = await supabase
+        .from('job_results')
+        .update({
+            shopify_push_status: 'pending',
+            shopify_push_error: null,
+            updated_at: now,
+        })
+        .eq('id', jobResultId);
+
+    if (error) {
+        throw new Error(`markShopifyPushPending failed: ${error.message}`);
+    }
+
+}
+
+export async function markShopifyPushPushed(jobResultId: string): Promise<void> {
+
+    const now = new Date().toISOString;
+
+    const { error } = await supabase
+        .from('job_results')
+        .update({
+            shopify_push_status: 'pushed',
+            shopify_push_error: null,
+            updated_at: now,
+        })
+        .eq('id', jobResultId);
+
+    if (error) {
+        throw new Error(`markShopifyPushPushed failed: ${error.message}`);
+    }
+
+}
+
+export async function markShopifyPushFailed(
+    jobResultId: string,
+    errorMessage: string,
+): Promise<void> {
+    
+    const now = new Date().toISOString();
+    
+    const { error } = await supabase
+      .from('job_results')
+      .update({
+        shopify_push_status: 'failed',
+        shopify_push_error: errorMessage,
+        updated_at: now,
+      })
+      .eq('id', jobResultId);
+    
+    if (error) {
+      throw new Error(`markShopifyPushFailed failed: ${error.message}`);
+    }
+}
+
+export async function markShopifyPushSkipped(jobResultId: string): Promise<void> {
+    
+    const now = new Date().toISOString();
+    
+    const { error } = await supabase
+      .from('job_results')
+      .update({
+        shopify_push_status: 'skipped',
+        shopify_push_error: null,
+        updated_at: now,
+      })
+      .eq('id', jobResultId);
+    
+    if (error) {
+      throw new Error(`markShopifyPushSkipped failed: ${error.message}`);
+    }
+
+}
