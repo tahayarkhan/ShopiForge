@@ -5,9 +5,25 @@ function statusLabel(status: string): string {
   return status.charAt(0).toUpperCase() + status.slice(1);
 }
 
+function resultStatusLabel(status: string): string {
+  switch (status) {
+    case 'pending':
+      return 'Waiting';
+    case 'processing':
+      return 'Optimizing…';
+    case 'completed':
+      return 'Completed';
+    case 'failed':
+      return 'Failed';
+    default:
+      return statusLabel(status);
+  }
+}
+
 export function JobDetailPage() {
   const { id } = useParams();
   const { job, error, isTerminal, isPolling } = useJobPolling(id);
+  
 
   if (!id) {
     return (
@@ -27,9 +43,17 @@ export function JobDetailPage() {
       </Link>
 
       <h1 className="mt-4 text-2xl font-semibold text-slate-900">
-        Optimization job
+        {job.type === 'batch' ? 'Batch optimization' : 'Optimization job'}
       </h1>
       <p className="mt-1 font-mono text-sm text-slate-500">{id}</p>
+
+      {job.type === 'batch' && (
+        <p className="mt-2 text-sm text-slate-600">
+          {job.completedCount} completed · {job.failedCount} failed ·{' '}
+          {job.totalCount} total
+        </p>
+      )}
+
 
       {error && (
         <p className="mt-4 text-sm text-red-600" role="alert">
@@ -72,6 +96,19 @@ export function JobDetailPage() {
             </p>
           )}
 
+
+          {job.status === 'partial' && (
+            <p className="text-sm text-amber-800" role="status">
+              Some products failed. Completed ones still have compare links below.
+            </p>
+          )}
+          {job.status === 'failed' && (
+            <p className="text-sm text-red-600" role="alert">
+              {job.errorMessage ??
+                'All products in this batch failed. See details per product below.'}
+            </p>
+          )}
+
           <ul className="divide-y divide-slate-200 rounded-lg border border-slate-200 bg-white">
             {job.results.map((result) => (
               <li key={result.jobResultId} className="p-4">
@@ -81,7 +118,7 @@ export function JobDetailPage() {
                       {result.productTitle}
                     </p>
                     <p className="text-sm text-slate-600">
-                      Status: {result.status}
+                      {resultStatusLabel(result.status)}
                     </p>
                     {result.errorMessage && (
                       <p className="mt-1 text-sm text-red-600">
