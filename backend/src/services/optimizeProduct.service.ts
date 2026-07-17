@@ -14,6 +14,7 @@ import {
   } from '../repositories/jobResultRepository.js';
   import { findProductByIdForShop } from '../repositories/productRepository.js';
   import { buildInputSnapshot } from '../utils/inputSnapshot.js';
+  import { parsePushToShopify } from '../utils/parsePushToShopify.js';
   
 
 const ALLOWED_TONES: ToneVariant[] = ['default', 'premium', 'casual', 'luxury'];
@@ -23,6 +24,7 @@ export interface OptimizeProductRequest {
     shopId: string;
     productId: string;
     tone?: ToneVariant;
+    pushToShopify?: unknown; 
 }
 
 export interface OptimizeProductResponse {
@@ -48,6 +50,7 @@ function parseTone(tone: unknown): ToneVariant {
 
 export async function optimizeProductForShop(input: OptimizeProductRequest): Promise<OptimizeProductResponse> {
     const tone = parseTone(input.tone);
+    const pushToShopify = parsePushToShopify(input.pushToShopify);
 
     const product = await findProductByIdForShop(input.productId, input.shopId);
 
@@ -72,12 +75,14 @@ export async function optimizeProductForShop(input: OptimizeProductRequest): Pro
     const job = await createSingleOptimizeJob({
         shopId: input.shopId,
         tone,
+        pushToShopify,
     });
 
     const jobResult = await createJobResult({
         jobId: job.id,
         productId: product.id,
         inputSnapshot,
+        shopifyPushStatus: pushToShopify ? 'pending' : 'skipped',
     });
 
     await enqueueOptimizeProductJob({
@@ -86,6 +91,7 @@ export async function optimizeProductForShop(input: OptimizeProductRequest): Pro
         shopId: input.shopId,
         productId: product.id,
         tone,
+        pushToShopify: job.pushToShopify,
     });
 
     await setJobBullMeta(job.id, OPTIMIZE_PRODUCT_QUEUE, job.id);

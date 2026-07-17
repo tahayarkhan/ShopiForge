@@ -18,6 +18,8 @@ import {
 } from '../repositories/jobResultRepository.js';
 import { findProductByIdForShop } from '../repositories/productRepository.js';
 import { buildInputSnapshot } from '../utils/inputSnapshot.js';
+import { parsePushToShopify } from '../utils/parsePushToShopify.js';
+
 
 const ALLOWED_TONES: ToneVariant[] = ['default', 'premium', 'casual', 'luxury'];
 
@@ -26,6 +28,7 @@ export interface OptimizeBatchRequest {
     productIds: unknown;
     tone?: unknown;
     idempotencyKey?: unknown;
+    pushToShopify?: unknown; 
 }
 export interface OptimizeBatchResponse {
     jobId: string;
@@ -113,6 +116,7 @@ export async function optimizeBatchForShop(
     const tone = parseTone(input.tone);
     const productIds = parseProductIds(input.productIds);
     const idempotencyKey = resolveIdempotencyKey(input.shopId, input.idempotencyKey);
+    const pushToShopify = parsePushToShopify(input.pushToShopify);
 
     const existing = await findJobByIdempotencyKey(idempotencyKey);
 
@@ -152,6 +156,7 @@ export async function optimizeBatchForShop(
             tone,
             totalCount: products.length,
             idempotencyKey,
+            pushToShopify,
         });
     } catch (err) {
         const raced = await findJobByIdempotencyKey(idempotencyKey);
@@ -166,12 +171,14 @@ export async function optimizeBatchForShop(
             shopId: input.shopId,
             tone,
             parentJobId: parent.id,
+            pushToShopify,
         })
 
         const jobResult = await createJobResult({
             jobId: child.id,
             productId: product.id,
             inputSnapshot: buildInputSnapshot(product),
+            shopifyPushStatus: pushToShopify ? 'pending' : 'skipped',
         });
 
         await enqueueOptimizeProductJob({
@@ -181,6 +188,7 @@ export async function optimizeBatchForShop(
             productId: product.id,
             tone,
             parentJobId: parent.id,
+            pushToShopify: child.pushToShopify,
         });
 
         await setJobBullMeta(child.id, OPTIMIZE_PRODUCT_QUEUE, child.id);

@@ -14,6 +14,7 @@ export interface CreateJobResultInput {
     jobId: string;
     productId: string;
     inputSnapshot: ProductInputSnapshot;
+    shopifyPushStatus: 'pending' | 'skipped';
 }
 
 export interface CompleteJobResultInput {
@@ -35,7 +36,7 @@ export async function createJobResult(input: CreateJobResultInput): Promise<JobR
             product_id: input.productId,
             status: 'pending',
             input_snapshot: input.inputSnapshot,
-            shopify_push_status: 'skipped',
+            shopify_push_status: input.shopifyPushStatus,
             retry_count: 0,
             created_at: now,
             updated_at: now,

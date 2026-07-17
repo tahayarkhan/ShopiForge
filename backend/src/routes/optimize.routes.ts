@@ -16,7 +16,7 @@ optimizeRouter.post('/product', async (req, res, next) => {
 
     try {
         const { shop } = req as AuthenticatedRequest;
-        const { productId, tone } = req.body ?? {};
+        const { productId, tone, pushToShopify } = req.body ?? {};
 
         if (typeof productId !== 'string' || productId.trim() === '') {
             throw new AppError(400, 'INVALID_REQUEST', 'productId is required');
@@ -26,6 +26,7 @@ optimizeRouter.post('/product', async (req, res, next) => {
             shopId: shop.id,
             productId,
             tone,
+            pushToShopify,
         });
 
         res.status(202).json(result);
@@ -45,13 +46,14 @@ optimizeRouter.post('/batch', async (req, res, next) => {
 
     try {
         const { shop } = req as AuthenticatedRequest;
-        const { productIds, tone, idempotencyKey} = req.body ?? {};
+        const { productIds, tone, idempotencyKey, pushToShopify} = req.body ?? {};
 
         const result = await optimizeBatchForShop({
             shopId: shop.id,
             productIds,
             tone,
             idempotencyKey,
+            pushToShopify,
         });
 
         res.status(202).json(result);

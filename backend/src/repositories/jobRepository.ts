@@ -5,6 +5,7 @@ import type { Job, ToneVariant } from '@shopiforge/shared';
 export interface CreateSingleOptimizeJobInput {
     shopId: string;
     tone: ToneVariant;
+    pushToShopify: boolean;
 }
 
 export interface CreateBatchParentJobInput {
@@ -12,12 +13,14 @@ export interface CreateBatchParentJobInput {
     tone: ToneVariant;
     totalCount: number;
     idempotencyKey: string;
+    pushToShopify: boolean;
 }
   
 export interface CreateChildOptimizeJobInput {
     shopId: string;
     tone: ToneVariant;
     parentJobId: string;
+    pushToShopify: boolean;
 }
 
 export async function createSingleOptimizeJob(
@@ -33,7 +36,7 @@ export async function createSingleOptimizeJob(
             type: 'single',
             status: 'pending',
             tone: input.tone,
-            push_to_shopify: false,
+            push_to_shopify: input.pushToShopify,
             total_count: 1,
             completed_count: 0,
             failed_count: 0,
