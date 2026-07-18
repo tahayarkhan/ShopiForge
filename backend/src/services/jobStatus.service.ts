@@ -18,6 +18,7 @@ export interface JobResultSummary {
     errorMessage: string | null;
     usedFallback: boolean | null;
     compareUrl: string | null;
+    shopifyPushStatus: 'pending' | 'pushed' | 'failed' | 'skipped';
 }
 
 export interface JobStatusResponse {
@@ -124,6 +125,8 @@ async function buildResultSummaries(input: {
               result.status === 'completed'
                 ? `/products/${result.productId}/compare?jobId=${owningJobId}`
                 : null,
+            shopifyPushStatus: result.shopifyPushStatus,
+
         });
     }
 

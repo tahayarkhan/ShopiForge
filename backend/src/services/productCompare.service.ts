@@ -9,20 +9,22 @@ export interface ProductCompareResponse {
     jobId: string;
     tone: string;
     before: {
-        title: string;
-        descriptionHtml: string;
-        tags: string[];
+      title: string;
+      descriptionHtml: string;
+      tags: string[];
     };
     after: {
-        title: string;
-        descriptionHtml: string;
-        tags: string[];
-        bulletPoints: string[];
-        seoKeywords: string[];
+      title: string;
+      descriptionHtml: string;
+      tags: string[];
+      bulletPoints: string[];
+      seoKeywords: string[];
     };
     usedFallback: boolean;
     validationErrors: Record<string, unknown> | null;
     shopifyPushStatus: string;
+    shopifyPushError: string | null;
+    staleWarning: boolean;
     createdAt: string;
 }
 
@@ -63,6 +65,15 @@ export async function getProductCompare(params: {
 
     const job = await findJobById(jobResult.jobId);
 
+    const snapshotAt = jobResult.inputSnapshot.shopifyUpdatedAt ?? null;
+    const currentAt = product.shopifyUpdatedAt ?? null;
+
+    const staleWarning = 
+        Boolean(snapshotAt) &&
+        Boolean(currentAt) &&
+        snapshotAt !== currentAt &&
+        jobResult.shopifyPushStatus !== 'pushed';
+
     return {
         productId: product.id,
         jobId: jobResult.jobId,
@@ -76,6 +87,8 @@ export async function getProductCompare(params: {
         usedFallback: jobResult.validationErrors != null,
         validationErrors: jobResult.validationErrors,
         shopifyPushStatus: jobResult.shopifyPushStatus,
+        shopifyPushError: jobResult.shopifyPushError,
+        staleWarning,
         createdAt: jobResult.createdAt,
     };
 

@@ -94,6 +94,8 @@ export interface CompareResponse {
   usedFallback: boolean;
   validationErrors: Record<string, unknown> | null;
   shopifyPushStatus: string;
+  shopifyPushError?: string | null;
+  staleWarning?: boolean;
   createdAt: string;
 }
 
@@ -112,6 +114,7 @@ export interface JobResultSummary {
   errorMessage?: string | null;
   usedFallback?: boolean | null;
   compareUrl?: string | null;
+  shopifyPushStatus?: 'pending' | 'pushed' | 'failed' | 'skipped';
 }
 
 export interface JobStatusResponse {
