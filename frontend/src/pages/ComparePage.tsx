@@ -6,6 +6,37 @@ import type { CompareData, CompareResponse } from '../types';
 
 type PageState = 'loading' | 'ready' | 'error' | 'not_found';
 
+
+function pushStatusLabel(status: string): string {
+  switch (status) {
+    case 'pending':
+      return 'Push pending';
+    case 'pushed':
+      return 'Pushed to Shopify';
+    case 'failed':
+      return 'Push failed';
+    case 'skipped':
+      return 'Not pushed';
+    default:
+      return status;
+  }
+}
+
+function pushStatusBadgeClass(status: string): string {
+  switch (status) {
+    case 'pushed':
+      return 'bg-emerald-50 text-emerald-800';
+    case 'failed':
+      return 'bg-red-50 text-red-800';
+    case 'pending':
+      return 'bg-amber-50 text-amber-800';
+    case 'skipped':
+    default:
+      return 'bg-slate-100 text-slate-700';
+  }
+}
+
+
 export function ComparePage() {
   const { id } = useParams();
   const [searchParams] = useSearchParams();
@@ -113,7 +144,8 @@ export function ComparePage() {
   
   const showFallbackWarning = compare.usedFallback || compare.validationErrors != null;
 
-  
+  const pushStatus = compare.shopifyPushStatus ?? 'skipped';
+
 
   return (
     <div>
@@ -142,6 +174,32 @@ export function ComparePage() {
           </p>
         </div>
       )}
+
+      {compare.staleWarning === true && (
+        <div
+          className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-4"
+          role="status"
+        >
+          <p className="text-amber-900">
+            This product changed in Shopify after optimization started. Review
+            carefully — write-back may overwrite newer merchant edits.
+          </p>
+        </div>
+      )}
+
+
+      {pushStatus === 'failed' && (
+        <div
+          className="mt-4 rounded-lg border border-red-200 bg-red-50 p-4"
+          role="alert"
+        >
+          <p className="text-red-900">
+            {compare.shopifyPushError ??
+              'Shopify was not updated. The AI result is still available below for review.'}
+          </p>
+        </div>
+      )}
+
       <div className="mt-6">
         <ComparePanel compareData={compareData} />
       </div>
