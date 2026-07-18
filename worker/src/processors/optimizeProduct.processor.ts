@@ -22,6 +22,8 @@ import {
   mapAiOutputToShopifyProductUpdate,
   updateProduct,
 } from '../services/shopifyClient.js';
+import { withShopWriteLock } from '../services/shopifyWriteLock.js';
+
 
 export async function processOptimizeProductJob(payload: OptimizeProductJobPayload): Promise<void> {
     const { jobId, jobResultId, shopId, productId, tone, parentJobId } = payload;
@@ -115,14 +117,16 @@ export async function processOptimizeProductJob(payload: OptimizeProductJobPaylo
                         output: result.output,
                     });
 
-                    const updated = await updateProduct(
-                        {
-                            shopifyDomain: shop.shopifyDomain,
-                            accessToken,
-                            apiVersion: env.SHOPIFY_API_VERSION,
-                        },
-                        shopifyInput,
-                    );
+                    const updated = await withShopWriteLock(shopId, async () => {
+                        return updateProduct(
+                            {
+                                shopifyDomain: shop.shopifyDomain,
+                                accessToken,
+                                apiVersion: env.SHOPIFY_API_VERSION,
+                            },
+                            shopifyInput,
+                        );
+                    });
 
                     await updateProductAfterShopifyPush({
                         productId: product.id,
