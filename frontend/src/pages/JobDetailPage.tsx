@@ -20,6 +20,23 @@ function resultStatusLabel(status: string): string {
   }
 }
 
+
+function pushStatusLabel(status: string | undefined): string | null {
+  if (!status) return null;
+  switch (status) {
+    case 'pending':
+      return 'Push pending';
+    case 'pushed':
+      return 'Pushed to Shopify';
+    case 'failed':
+      return 'Push failed';
+    case 'skipped':
+      return 'Not pushed';
+    default:
+      return status;
+  }
+}
+
 export function JobDetailPage() {
   const { id } = useParams();
   const { job, error, isTerminal, isPolling } = useJobPolling(id);
@@ -112,6 +129,7 @@ export function JobDetailPage() {
           <ul className="divide-y divide-slate-200 rounded-lg border border-slate-200 bg-white">
             {job.results.map((result) => (
               <li key={result.jobResultId} className="p-4">
+                
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div>
                     <p className="font-medium text-slate-900">
@@ -119,6 +137,11 @@ export function JobDetailPage() {
                     </p>
                     <p className="text-sm text-slate-600">
                       {resultStatusLabel(result.status)}
+                      {pushStatusLabel(result.shopifyPushStatus) && (
+                        <p className="text-sm text-slate-500">
+                          {pushStatusLabel(result.shopifyPushStatus)}
+                        </p>
+                      )}
                     </p>
                     {result.errorMessage && (
                       <p className="mt-1 text-sm text-red-600">
