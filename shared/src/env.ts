@@ -10,7 +10,7 @@ export const envSchema = z.object({
     SUPABASE_SERVICE_ROLE_KEY: z.string(),
     SHOPIFY_API_KEY: z.string().min(1),
     SHOPIFY_API_SECRET: z.string().min(1),
-    SHOPIFY_SCOPES: z.string().default('read_products'),
+    SHOPIFY_SCOPES: z.string().default('read_products, write_products'),
     SHOPIFY_APP_URL: z.string().url(),
     SHOPIFY_API_VERSION: z.string().default('2026-07'),
     SESSION_SECRET: z.string().min(32),
