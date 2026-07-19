@@ -60,11 +60,12 @@ export function JobDetailPage() {
       </Link>
 
       <h1 className="mt-4 text-2xl font-semibold text-slate-900">
-        {job.type === 'batch' ? 'Batch optimization' : 'Optimization job'}
+        {job?.type === 'batch' ? 'Batch optimization' : 'Optimization job'}
       </h1>
+
       <p className="mt-1 font-mono text-sm text-slate-500">{id}</p>
 
-      {job.type === 'batch' && (
+      {job?.type === 'batch' && (
         <p className="mt-2 text-sm text-slate-600">
           {job.completedCount} completed · {job.failedCount} failed ·{' '}
           {job.totalCount} total
@@ -137,12 +138,12 @@ export function JobDetailPage() {
                     </p>
                     <p className="text-sm text-slate-600">
                       {resultStatusLabel(result.status)}
-                      {pushStatusLabel(result.shopifyPushStatus) && (
-                        <p className="text-sm text-slate-500">
-                          {pushStatusLabel(result.shopifyPushStatus)}
-                        </p>
-                      )}
                     </p>
+                    {pushStatusLabel(result.shopifyPushStatus) && (
+                      <p className="text-sm text-slate-500">
+                        {pushStatusLabel(result.shopifyPushStatus)}
+                      </p>
+                    )}
                     {result.errorMessage && (
                       <p className="mt-1 text-sm text-red-600">
                         {result.errorMessage}
