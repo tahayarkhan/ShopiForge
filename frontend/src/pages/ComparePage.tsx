@@ -159,9 +159,16 @@ export function ComparePage() {
             Review the original listing beside the AI-optimized version.
           </p>
         </div>
-        <span className="w-fit rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-700">
-          AI optimization result
-        </span>
+        <div className="flex flex-wrap gap-2">
+          <span className="w-fit rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-700">
+            AI optimization result
+          </span>
+          <span
+            className={`w-fit rounded-full px-3 py-1 text-sm font-medium ${pushStatusBadgeClass(pushStatus)}`}
+          >
+            {pushStatusLabel(pushStatus)}
+          </span>
+        </div>
       </div>
       {showFallbackWarning && (
         <div
