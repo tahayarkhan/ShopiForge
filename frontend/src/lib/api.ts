@@ -5,7 +5,7 @@ import type {
     OptimizeBatchResponse,
     OptimizeProductResponse,
     Product,
-    ProductSyncSummary,
+    ProductSyncQueuedResponse,
     ShopSafe,
 } from '../types/index.js';
 
@@ -78,8 +78,8 @@ export async function getProducts(): Promise<Product[]>{
     return data.products;
 }
 
-export async function syncProducts(): Promise<ProductSyncSummary> {
-    return apiFetch<ProductSyncSummary>('/products/sync', {
+export async function syncProducts(): Promise<ProductSyncQueuedResponse> {
+    return apiFetch<ProductSyncQueuedResponse>('/products/sync', {
       method: 'POST',
     });
 }

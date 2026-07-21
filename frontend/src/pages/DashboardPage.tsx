@@ -118,8 +118,16 @@ export function DashboardPage() {
 
     try {
       await syncProducts();
-      const list = await getProducts();
-      setProducts(list);
+      setError(null);
+      window.setTimeout(async () => {
+        try {
+          const list = await getProducts();
+          setProducts(list);
+        } catch {
+          // ignore — user can refresh manually
+        }
+      }, 4000);
+      
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Sync failed');
     } finally {
