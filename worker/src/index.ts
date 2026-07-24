@@ -2,10 +2,13 @@ import './loadEnv.js';
 import { Worker } from 'bullmq';
 import {
   OPTIMIZE_PRODUCT_QUEUE,
+  PRODUCT_SYNC_QUEUE,
   parseEnv,
   type OptimizeProductJobPayload,
+  type ProductSyncJobPayload,
 } from '@shopiforge/shared';
 import { processOptimizeProductJob } from './processors/optimizeProduct.processor.js';
+import { processProductSyncJob } from './processors/productSync.processor.js';
 import { failJobResult } from './repositories/jobResultRepository.js';
 import {
   markJobFailed,
@@ -15,7 +18,7 @@ import {
 // Must load .env before parseEnv / Redis
 const env = parseEnv();
 
-const worker = new Worker<OptimizeProductJobPayload>(
+const optimizeWorker = new Worker<OptimizeProductJobPayload>(
   OPTIMIZE_PRODUCT_QUEUE,
   async (job) => {
     // job.data = the payload backend enqueued in Step 4
@@ -30,12 +33,29 @@ const worker = new Worker<OptimizeProductJobPayload>(
   },
 );
 
+const productSyncWorker = new Worker<ProductSyncJobPayload>(
+  PRODUCT_SYNC_QUEUE,
+  async (job) => {
+    await processProductSyncJob(job.data);
+  },
+  {
+    connection: {
+        url: env.REDIS_URL,
+        maxRetriesPerRequest: null,
+      },
+    concurrency: 5,
+  },
+);
 
-worker.on('completed', (job) => {
+
+
+
+
+optimizeWorker.on('completed', (job) => {
   console.log(`[worker] completed ${job.id}`);
 });
 
-worker.on('failed', async (job, err) => {
+optimizeWorker.on('failed', async (job, err) => {
   console.error(`[worker] failed ${job?.id}:`, err.message);
 
   // After all BullMQ attempts are exhausted, mark DB as failed
@@ -60,6 +80,16 @@ worker.on('failed', async (job, err) => {
   }
 });
 
+
+productSyncWorker.on('completed', (job) => {
+  console.log(`[product-sync] completed ${job.id}`);
+});
+
+productSyncWorker.on('failed', (job, err) => {
+  console.error(`[product-sync] failed ${job?.id}:`, err.message);
+});
+
 console.log(
-  `[worker] listening on ${OPTIMIZE_PRODUCT_QUEUE} (${env.NODE_ENV})`,
+  `[worker] listening on ${OPTIMIZE_PRODUCT_QUEUE} + ${PRODUCT_SYNC_QUEUE} (${env.NODE_ENV})`,
 );
+
