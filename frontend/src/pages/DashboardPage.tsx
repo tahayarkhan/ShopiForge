@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { BatchActionBar } from '../components/BatchActionBar';
 import { ProductCard } from '../components/ProductCard';
 import { Skeleton } from '../components/Skeleton';
+import { useToast } from '../components/toastContext';
 import {
   ApiError,
   getCurrentShop,
@@ -13,6 +14,9 @@ import {
 import type { Product, ShopSafe } from '../types';
 
 type DashboardState = 'loading' | 'unauthenticated' | 'ready';
+
+type Tone = 'default' | 'premium' | 'casual' | 'luxury';
+
 
 const MAX_BATCH_PRODUCTS = 50;
 
@@ -29,6 +33,13 @@ export function DashboardPage() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [batchOptimizing, setBatchOptimizing] = useState(false);
   const [batchError, setBatchError] = useState<string | null>(null);
+
+  const TONES: Tone[] = ['default', 'premium', 'casual', 'luxury'];
+  const [tone, setTone] = useState<Tone>('default');
+
+  const toast = useToast();
+
+
 
   function handleToggleSelect(productId: string) {
     setBatchError(null);
@@ -56,7 +67,7 @@ export function DashboardPage() {
     try {
       const result = await optimizeBatch(
         selectedIds,
-        'default',
+        tone,
         crypto.randomUUID(),
       );
       setSelectedIds([]);
@@ -116,21 +127,16 @@ export function DashboardPage() {
   async function handleSync() {
     setSyncing(true);
     setError(null);
-
     try {
-      await syncProducts();
-      setError(null);
-      window.setTimeout(async () => {
-        try {
-          const list = await getProducts();
-          setProducts(list);
-        } catch {
-          // ignore — user can refresh manually
-        }
-      }, 4000);
-      
+      const result = await syncProducts();
+      toast.success(`Synced ${result.synced} products`);
+      const list = await getProducts();
+      setProducts(list);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Sync failed');
+      const message =
+        err instanceof Error ? err.message : 'Sync failed';
+      toast.error(message);
+      setError(message); // optional if toast is enough
     } finally {
       setSyncing(false);
     }
@@ -139,13 +145,22 @@ export function DashboardPage() {
   if (state === 'loading') {
     return (
       <div>
-        <h1 className="text-2xl font-bold">Product Dashboard</h1>
+        <h1
+          className="text-2xl font-semibold text-[var(--color-ink)]"
+          style={{ fontFamily: 'var(--font-display)' }}
+        >
+          Product Dashboard
+        </h1>
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="space-y-3 rounded-lg border border-[var(--color-ink)]/10 p-4">
+            <div
+              key={i}
+              className="space-y-3 rounded-lg border border-[var(--color-ink)]/10 p-4"
+            >
               <Skeleton className="h-36 w-full" />
               <Skeleton className="h-4 w-3/4" />
               <Skeleton className="h-4 w-1/2" />
+              <Skeleton className="h-4 w-1/3" />
             </div>
           ))}
         </div>
@@ -155,24 +170,45 @@ export function DashboardPage() {
 
   if (state === 'unauthenticated') {
     return (
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900">Product Dashboard</h1>
-        <div className="mt-6 rounded-lg border border-amber-200 bg-amber-50 p-4">
-          <p className="text-amber-900">
-            Connect your Shopify store to get started.
-          </p>
-          <Link
-            to="/install"
-            className="mt-3 inline-block text-sm font-medium text-blue-600 hover:underline"
-          >
-            Install ShopiForge →
-          </Link>
-        </div>
+      <div className="mx-auto max-w-lg py-16 text-center">
+        <h1
+          className="text-3xl font-semibold text-(--color-ink)"
+          style={{ fontFamily: 'var(--font-display)' }}
+        >
+          Connect your store
+        </h1>
+        <p className="mt-3 text-(--color-muted)">
+          Install ShopiForge on Shopify to sync products and run optimizations.
+        </p>
+        <Link
+          to="/install"
+          className="mt-8 inline-flex rounded-md bg-(--color-forge) px-5 py-2.5 text-sm font-medium text-(--color-paper) hover:bg-(--color-forge-hover)"
+        >
+          Install ShopiForge
+        </Link>
       </div>
     );
   }
 
 
+  const activeCount = products.filter(
+    (p) => p.status?.toUpperCase() === 'ACTIVE',
+  ).length;
+
+  const draftCount = products.filter(
+    (p) => p.status?.toUpperCase() === 'DRAFT',
+  ).length;
+
+  const latestSyncedAt = products.reduce<string | null>((latest, p) => {
+    if (!p.lastSyncedAt) return latest;
+    if (!latest) return p.lastSyncedAt;
+    return p.lastSyncedAt > latest ? p.lastSyncedAt : latest;
+  }, null);
+
+  function formatSyncLabel(iso: string | null) {
+    if (!iso) return 'Never synced';
+    return new Date(iso).toLocaleString();
+  }
 
   return (
     
@@ -184,14 +220,82 @@ export function DashboardPage() {
             <p className="mt-1 text-sm text-slate-600">{shop.shopifyDomain}</p>
           )}
         </div>
+
+        {/* Stats strip */}
+        <div className="mt-6 flex flex-wrap gap-3 text-sm">
+          <div className="rounded-lg border border-[var(--color-ink)]/10 px-4 py-3">
+            <p className="text-[var(--color-muted)]">Products</p>
+            <p className="mt-0.5 text-lg font-semibold text-[var(--color-ink)]">
+              {products.length}
+            </p>
+          </div>
+
+          <div className="rounded-lg border border-[var(--color-ink)]/10 px-4 py-3">
+            <p className="text-[var(--color-muted)]">Active / Draft</p>
+            <p className="mt-0.5 text-lg font-semibold text-[var(--color-ink)]">
+              {activeCount} / {draftCount}
+            </p>
+          </div>
+
+          <div className="rounded-lg border border-[var(--color-ink)]/10 px-4 py-3">
+            <p className="text-[var(--color-muted)]">Last sync</p>
+            <p className="mt-0.5 text-lg font-semibold text-[var(--color-ink)]">
+              {formatSyncLabel(latestSyncedAt)}
+            </p>
+          </div>
+
+          {shop && (
+            <div className="rounded-lg border border-[var(--color-ink)]/10 px-4 py-3">
+              <p className="text-[var(--color-muted)]">Shop</p>
+              <p className="mt-0.5 flex items-center gap-2 font-semibold text-[var(--color-ink)]">
+                <span className="capitalize">{shop.plan}</span>
+                <span
+                  className={[
+                    'inline-block h-2 w-2 rounded-full',
+                    shop.isActive
+                      ? 'bg-(--color-mint)'
+                      : 'bg-(--color-danger)',
+                  ].join(' ')}
+                  title={shop.isActive ? 'Active' : 'Inactive'}
+                />
+              </p>
+            </div>
+          )}
+        </div>
+
+
         <button
           type="button"
           onClick={handleSync}
           disabled={syncing}
-          className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-50"
-        >
+          className="rounded-md bg-(--color-forge) px-4 py-2 text-sm font-medium text-(--color-paper) hover:bg-(--color-forge-hover) disabled:opacity-50"
+          >
           {syncing ? 'Syncing...' : 'Sync products'}
         </button>
+
+
+        <div
+          className="inline-flex rounded-lg border border-[var(--color-ink)]/15 p-0.5"
+          role="group"
+          aria-label="Optimization tone"
+        >
+          {TONES.map((t) => (
+            <button
+              key={t}
+              type="button"
+              onClick={() => setTone(t)}
+              className={[
+                'rounded-md px-3 py-1.5 text-sm capitalize transition',
+                tone === t
+                  ? 'bg-[var(--color-forge)] text-[var(--color-paper)]'
+                  : 'text-[var(--color-muted)] hover:text-[var(--color-ink)]',
+              ].join(' ')}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
+
       </div>
 
       {showInstalledBanner && (
@@ -212,11 +316,24 @@ export function DashboardPage() {
       )}
 
       {products.length === 0 ? (
-        <div className="mt-8 rounded-lg border border-slate-200 bg-slate-50 p-6 text-center">
-          <p className="text-slate-600">No products synced yet.</p>
-          <p className="mt-1 text-sm text-slate-500">
-            Click &quot;Sync products&quot; to import from Shopify.
+        <div className="mt-10 rounded-lg border border-dashed border-(--color-ink)/20 px-6 py-16 text-center">
+          <p
+            className="text-xl font-semibold text-(--color-ink)"
+            style={{ fontFamily: 'var(--font-display)' }}
+          >
+            No products yet
           </p>
+          <p className="mt-2 text-sm text-(--color-muted)">
+            Pull your catalog from Shopify to start optimizing listings.
+          </p>
+          <button
+            type="button"
+            onClick={handleSync}
+            disabled={syncing}
+            className="mt-6 rounded-md bg-(--color-forge) px-5 py-2.5 text-sm font-medium text-(--color-paper) hover:bg-(--color-forge-hover) disabled:opacity-50"
+          >
+            {syncing ? 'Syncing...' : 'Sync products'}
+          </button>
         </div>
       ) : (
         <>
@@ -224,6 +341,7 @@ export function DashboardPage() {
             <BatchActionBar
               selectedCount={selectedIds.length}
               maxCount={MAX_BATCH_PRODUCTS}
+              tone={tone}
               optimizing={batchOptimizing}
               error={batchError}
               onClear={() => {
@@ -239,6 +357,7 @@ export function DashboardPage() {
               <ProductCard
                 key={product.id}
                 product={product}
+                tone={tone}
                 selected={selectedIds.includes(product.id)}
                 onToggleSelect={handleToggleSelect}
                 selectionDisabled={selectedIds.length >= MAX_BATCH_PRODUCTS}
