@@ -5,9 +5,9 @@
    Change once here → updates everywhere that references them. */
 :root {
   --color-ink: #0c0f14;           /* main text */
-  --color-paper: #f3f1ec;         /* page background (warm off-white) */
-  --color-forge: #c45c26;         /* brand accent (CTAs, highlights) */
-  --color-forge-hover: #a34b1f;   /* darker forge for hover states */
+  --color-paper: #fcfbf8;         /* page background (warm off-white) */
+  --color-forge: #95BF47;         /* brand accent (CTAs, highlights) */
+  --color-forge-hover: #5E8E3E;   /* darker forge for hover states */
   --color-mint: #0f766e;          /* success / positive accents */
   --color-danger: #b91c1c;        /* errors / destructive actions */
   --color-muted: #5c6570;         /* secondary / helper text */
