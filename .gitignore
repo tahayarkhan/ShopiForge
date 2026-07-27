@@ -3,6 +3,7 @@ build-plan.md
 data-model.md
 flows.md
 prompt.md
+frontend.md
 
 node_modules/
 dist/
