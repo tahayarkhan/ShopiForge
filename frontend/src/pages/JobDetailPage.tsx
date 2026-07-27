@@ -61,7 +61,7 @@ export function JobDetailPage() {
   }
 
   return (
-    <div>
+    <div className="animate-fade-in mt-6 space-y-4">
       <Link to="/dashboard" className="text-sm text-blue-600 hover:underline">
         Back to dashboard
       </Link>

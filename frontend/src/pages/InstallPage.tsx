@@ -32,47 +32,64 @@ export function InstallPage() {
     }
 
     return (
-        <div className="mx-auto max-w-md">
-          <h1 className="text-2xl font-bold text-slate-900">Connect Shopify Store</h1>
-          <p className="mt-2 text-slate-600">
-            Enter your store domain to install ShopiForge and sync products.
-          </p>
-          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-            <div>
-              <label htmlFor="shop" className="block text-sm font-medium text-slate-700">
-                Shop domain
-              </label>
-              <input
-                id="shop"
-                name="shop"
-                type="text"
-                value={shop}
-                onChange={(e) => setShop(e.target.value)}
-                placeholder="my-store or my-store.myshopify.com"
-                autoComplete="off"
-                className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              />
-            </div>
-            {error && (
-              <p className="text-sm text-red-600" role="alert">
-                {error}
-              </p>
-            )}
-            <button
-              type="submit"
-              disabled={submitting}
-              className="w-full rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-50"
+      <div className="animate-fade-in mx-auto flex min-h-[70vh] max-w-lg flex-col justify-center px-4 py-12">
+        {/* Brand at hero scale — not just a page title */}
+        <p
+          className="text-4xl font-bold tracking-tight text-[var(--color-ink)] sm:text-5xl"
+          style={{ fontFamily: 'var(--font-display)' }}
+        >
+          ShopiForge
+        </p>
+        {/* One headline */}
+        <h1 className="mt-6 text-xl font-semibold text-[var(--color-ink)] sm:text-2xl">
+          Connect your Shopify store
+        </h1>
+        {/* One supporting line */}
+        <p className="mt-2 text-[var(--color-muted)]">
+          Enter your store domain to install and sync products.
+        </p>
+        <form onSubmit={handleSubmit} className="mt-8 space-y-4">
+          <div>
+            <label
+              htmlFor="shop"
+              className="block text-sm font-medium text-[var(--color-ink)]"
             >
-              {submitting ? 'Redirecting...' : 'Connect store'}
-            </button>
-          </form>
-          <p className="mt-6 text-sm text-slate-500">
-            Already connected?{' '}
-            <Link to="/dashboard" className="font-medium text-blue-600 hover:underline">
-              Go to dashboard
-            </Link>
-          </p>
-        </div>
+              Shop domain
+            </label>
+            <input
+              id="shop"
+              name="shop"
+              type="text"
+              value={shop}
+              onChange={(e) => setShop(e.target.value)}
+              placeholder="my-store or my-store.myshopify.com"
+              autoComplete="off"
+              className="mt-1 w-full rounded-md border border-[var(--color-ink)]/20 bg-[var(--color-paper)] px-3 py-2.5 text-[var(--color-ink)] shadow-sm outline-none focus:border-[var(--color-forge)] focus:ring-1 focus:ring-[var(--color-forge)]"
+            />
+          </div>
+          {error && (
+            <p className="text-sm text-[var(--color-danger)]" role="alert">
+              {error}
+            </p>
+          )}
+          <button
+            type="submit"
+            disabled={submitting}
+            className="w-full rounded-md bg-[var(--color-forge)] px-4 py-2.5 text-sm font-medium text-[var(--color-paper)] transition-colors hover:bg-[var(--color-forge-hover)] disabled:opacity-50"
+          >
+            {submitting ? 'Redirecting...' : 'Connect store'}
+          </button>
+        </form>
+        <p className="mt-8 text-sm text-[var(--color-muted)]">
+          Already connected?{' '}
+          <Link
+            to="/dashboard"
+            className="font-medium text-[var(--color-mint)] hover:underline"
+          >
+            Go to dashboard
+          </Link>
+        </p>
+      </div>
     );
 
 }

@@ -24,7 +24,6 @@ export function DashboardPage() {
   const navigate = useNavigate();
   const [state, setState] = useState<DashboardState>('loading');
   const [searchParams, setSearchParams] = useSearchParams();
-  const [showInstalledBanner, setShowInstalledBanner] = useState(false);
   const [shop, setShop] = useState<ShopSafe | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -119,10 +118,10 @@ export function DashboardPage() {
 
   useEffect(() => {
     if (searchParams.get('installed') === '1') {
-      setShowInstalledBanner(true);
+      toast.success('Store connected');
       setSearchParams({}, { replace: true });
     }
-  }, [searchParams, setSearchParams]);
+  }, [searchParams, setSearchParams, toast]);
 
   async function handleSync() {
     setSyncing(true);
@@ -212,7 +211,7 @@ export function DashboardPage() {
 
   return (
     
-    <div>
+    <div className="animate-fade-in">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Product Dashboard</h1>
@@ -297,17 +296,6 @@ export function DashboardPage() {
         </div>
 
       </div>
-
-      {showInstalledBanner && (
-        <div
-          className="mt-4 rounded-lg border border-green-200 bg-green-50 p-4"
-          role="status"
-        >
-          <p className="text-green-900">
-            Shopify store connected. Sync products to load the latest catalog.
-          </p>
-        </div>
-      )}
 
       {error && (
         <p className="mt-4 text-sm text-red-600" role="alert">
