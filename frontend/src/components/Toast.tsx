@@ -25,7 +25,7 @@ export function Toast({ toast, onDismiss }: ToastProps) {
     <div
       role="status"
       className={[
-        'animate-slide-up pointer-events-auto flex min-w-[240px] max-w-sm items-start gap-3 rounded-lg border px-4 py-3 text-sm shadow-sm',
+        'animate-slide-up pointer-events-auto flex min-w-240px max-w-sm items-start gap-3 rounded-lg border px-4 py-3 text-sm shadow-sm',
         variantStyles[toast.variant],
       ].join(' ')}
     >
