@@ -68,10 +68,16 @@ export interface Product {
   updatedAt: string;
 }
 
-export interface ProductSyncQueuedResponse {
-  accepted: true;
-  jobId: string;
-  message: string;
+// export interface ProductSyncQueuedResponse {
+//   accepted: true;
+//   jobId: string;
+//   message: string;
+// }
+
+export interface ProductSyncResponse {
+  synced: number;
+  shopifyDomain: string;
+  lastSyncedAt: string;
 }
 
 export interface ApiErrorBody {

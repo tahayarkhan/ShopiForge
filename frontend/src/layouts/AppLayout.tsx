@@ -1,4 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom';
+import { ToastProvider } from '../components/toastContext';
 
 /** Small geometric mark — reads as "SF" even without the wordmark */
 function ForgeMark({ className }: { className?: string }) {
@@ -42,6 +43,8 @@ function ForgeMark({ className }: { className?: string }) {
 
 export function AppLayout() {
   return (
+    <ToastProvider>
+
     <div className="min-h-screen">
       {/* 2.2 — header surface (not flat white) */}
       <header
@@ -90,5 +93,6 @@ export function AppLayout() {
         <Outlet />
       </main>
     </div>
+    </ToastProvider>
   );
 }

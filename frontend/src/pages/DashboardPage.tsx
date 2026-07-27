@@ -2,6 +2,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useCallback, useEffect, useState } from 'react';
 import { BatchActionBar } from '../components/BatchActionBar';
 import { ProductCard } from '../components/ProductCard';
+import { Skeleton } from '../components/Skeleton';
 import {
   ApiError,
   getCurrentShop,
@@ -138,8 +139,16 @@ export function DashboardPage() {
   if (state === 'loading') {
     return (
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Product Dashboard</h1>
-        <p className="mt-2 text-slate-600">Loading...</p>
+        <h1 className="text-2xl font-bold">Product Dashboard</h1>
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="space-y-3 rounded-lg border border-[var(--color-ink)]/10 p-4">
+              <Skeleton className="h-36 w-full" />
+              <Skeleton className="h-4 w-3/4" />
+              <Skeleton className="h-4 w-1/2" />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
@@ -163,7 +172,10 @@ export function DashboardPage() {
     );
   }
 
+
+
   return (
+    
     <div>
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
