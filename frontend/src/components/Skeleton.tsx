@@ -7,7 +7,7 @@ type SkeletonProps = {
     return (
       <div
         className={[
-          'animate-pulse-soft rounded-md bg-[var(--color-ink)]/10',
+          'animate-pulse-soft rounded-md bg-(--color-ink)/10',
           className,
         ].join(' ')}
         aria-hidden="true"

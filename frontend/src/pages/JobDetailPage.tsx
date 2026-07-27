@@ -111,43 +111,43 @@ export function JobDetailPage() {
               Progress: {job.progressPercent}%
               </span>
               {isPolling && (
-                <span className="text-sm text-[var(--color-muted)]">Updating…</span>
+                <span className="text-sm text-(--color-muted)">Updating…</span>
               )}
               {isTerminal && !isPolling && (
-                <span className="text-sm text-[var(--color-muted)]">Finished</span>
+                <span className="text-sm text-(--color-muted)">Finished</span>
               )}
-              <p className="text-sm text-[var(--color-muted)]">
+              <p className="text-sm text-(--color-muted)">
                 {isTerminal ? 'Duration' : 'Elapsed'}:{' '}
-                <span className="font-medium text-[var(--color-ink)]">{elapsed}</span>
+                <span className="font-medium text-(--color-ink)">{elapsed}</span>
               </p>
             </div>
           </div>
 
           {/* progress bar */}
           <div className="space-y-2">
-            <div className="flex items-center justify-between text-sm text-[var(--color-muted)]">
+            <div className="flex items-center justify-between text-sm text-(--color-muted)">
               <span>
                 {job.completedCount} completed · {job.failedCount} failed ·{' '}
                 {job.totalCount} total
               </span>
-              <span className="font-medium text-[var(--color-ink)]">
+              <span className="font-medium text-(--color-ink)">
                 {job.progressPercent}%
               </span>
             </div>
 
             <div
-              className="flex h-2.5 w-full overflow-hidden rounded-full bg-[var(--color-ink)]/10"
+              className="flex h-2.5 w-full overflow-hidden rounded-full bg-(--color-ink)/10"
               role="progressbar"
               aria-valuenow={job.progressPercent}
               aria-valuemin={0}
               aria-valuemax={100}
             >
               <div
-                className="h-full bg-[var(--color-mint)] transition-all duration-500"
+                className="h-full bg-(--color-mint) transition-all duration-500"
                 style={{ width: `${completedPct}%` }}
               />
               <div
-                className="h-full bg-[var(--color-danger)] transition-all duration-500"
+                className="h-full bg-(--color-danger) transition-all duration-500"
                 style={{ width: `${failedPct}%` }}
               />
             </div>
@@ -157,7 +157,7 @@ export function JobDetailPage() {
 
           {isTerminal && job.status === 'completed' && (
             <div
-              className="animate-fade-in rounded-lg border border-[var(--color-mint)]/30 bg-[var(--color-mint)]/10 px-4 py-3 text-sm text-[var(--color-mint)]"
+              className="animate-fade-in rounded-lg border border-(--color-mint)/30 bg-(--color-mint)/10 px-4 py-3 text-sm text-(--color-mint)"
               role="status"
             >
               Job completed successfully.
@@ -177,7 +177,7 @@ export function JobDetailPage() {
 
           {isTerminal && job.status === 'failed' && (
             <div
-              className="animate-fade-in rounded-lg border border-[var(--color-danger)]/30 bg-[var(--color-danger)]/10 px-4 py-3 text-sm text-[var(--color-danger)]"
+              className="animate-fade-in rounded-lg border border-(--color-danger)/30 bg-(--color-danger)/10 px-4 py-3 text-sm text-(--color-danger)"
               role="alert"
             >
               {job.errorMessage ??
@@ -185,7 +185,7 @@ export function JobDetailPage() {
             </div>
           )}
 
-          <ul className="divide-y divide-[var(--color-ink)]/10 rounded-lg border border-[var(--color-ink)]/10 bg-[var(--color-paper)]">
+          <ul className="divide-y divide-(--color-ink)/10 rounded-lg border border-(--color-ink)/10 bg-(--color-paper)">
             {job.results.map((result) => {
               const isProcessing = result.status === 'processing';
 
@@ -199,7 +199,7 @@ export function JobDetailPage() {
                 >
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div className="min-w-0 space-y-2">
-                      <p className="font-medium text-[var(--color-ink)]">
+                      <p className="font-medium text-(--color-ink)">
                         {result.productTitle}
                       </p>
 
@@ -219,7 +219,7 @@ export function JobDetailPage() {
                       </div>
 
                       {result.errorMessage && (
-                        <p className="text-sm text-[var(--color-danger)]">
+                        <p className="text-sm text-(--color-danger)">
                           {result.errorMessage}
                         </p>
                       )}
@@ -228,7 +228,7 @@ export function JobDetailPage() {
                     {result.compareUrl && (
                       <Link
                         to={result.compareUrl}
-                        className="rounded-md bg-[var(--color-forge)] px-3 py-1.5 text-sm font-medium text-[var(--color-paper)] hover:bg-[var(--color-forge-hover)]"
+                        className="rounded-md bg-(--color-forge) px-3 py-1.5 text-sm font-medium text-(--color-paper) hover:bg-(--color-forge-hover)"
                       >
                         View compare
                       </Link>

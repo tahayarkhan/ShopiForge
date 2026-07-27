@@ -132,14 +132,14 @@ export function ComparePage() {
   if (state === 'loading') {
     return (
       <div>
-        <Link to="/dashboard" className="text-sm text-[var(--color-mint)] hover:underline">
+        <Link to="/dashboard" className="text-sm text-(--color-mint) hover:underline">
           Back to dashboard
         </Link>
         <div className="mt-6 grid gap-6 md:grid-cols-2">
           {[0, 1].map((col) => (
             <div
               key={col}
-              className="space-y-3 rounded-lg border border-[var(--color-ink)]/10 p-5"
+              className="space-y-3 rounded-lg border border-(--color-ink)/10 p-5"
             >
               <Skeleton className="h-4 w-20" />
               <Skeleton className="h-6 w-3/4" />
@@ -186,14 +186,14 @@ export function ComparePage() {
   if (state === 'error') {
     return (
       <div>
-        <Link to="/dashboard" className="text-sm text-[var(--color-mint)] hover:underline">
+        <Link to="/dashboard" className="text-sm text-(--color-mint) hover:underline">
           Back to dashboard
         </Link>
         <div
-          className="mt-6 rounded-lg border border-[var(--color-danger)]/30 bg-[var(--color-danger)]/10 p-4"
+          className="mt-6 rounded-lg border border-(--color-danger)/30 bg-(--color-danger)/10 p-4"
           role="alert"
         >
-          <p className="text-[var(--color-danger)]">{error}</p>
+          <p className="text-(--color-danger)">{error}</p>
           <Link to="/dashboard" className="mt-3 inline-block text-sm font-medium underline">
             Back to dashboard
           </Link>
@@ -293,10 +293,10 @@ export function ComparePage() {
           className={[
             'absolute top-4 left-1/2 z-0 h-0.5 w-full',
             steps[i + 1]!.state === 'done' || steps[i + 1]!.state === 'warn'
-              ? 'bg-[var(--color-mint)]/50'
+              ? 'bg-(--color-mint)/50'
               : steps[i + 1]!.state === 'failed'
-                ? 'bg-[var(--color-danger)]/40'
-                : 'bg-[var(--color-ink)]/15',
+                ? 'bg-(--color-danger)/40'
+                : 'bg-(--color-ink)/15',
           ].join(' ')}
           aria-hidden="true"
         />
@@ -305,11 +305,11 @@ export function ComparePage() {
       <div
         className={[
           'relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold',
-          step.state === 'done' && 'bg-[var(--color-mint)] text-[var(--color-paper)]',
+          step.state === 'done' && 'bg-(--color-mint) text-(--color-paper)',
           step.state === 'warn' && 'bg-amber-500 text-white',
-          step.state === 'failed' && 'bg-[var(--color-danger)] text-[var(--color-paper)]',
-          step.state === 'pending' && 'bg-[var(--color-forge)]/20 text-[var(--color-forge)]',
-          step.state === 'skipped' && 'bg-[var(--color-ink)]/10 text-[var(--color-muted)]',
+          step.state === 'failed' && 'bg-(--color-danger) text-(--color-paper)',
+          step.state === 'pending' && 'bg-(--color-forge)/20 text-(--color-forge)',
+          step.state === 'skipped' && 'bg-(--color-ink)/10 text-(--color-muted)',
         ]
           .filter(Boolean)
           .join(' ')}
@@ -317,10 +317,10 @@ export function ComparePage() {
         {i + 1}
       </div>
 
-      <p className="mt-3 text-sm font-semibold text-[var(--color-ink)]">
+      <p className="mt-3 text-sm font-semibold text-(--color-ink)">
         {step.label}
       </p>
-      <p className="text-xs capitalize text-[var(--color-muted)]">
+      <p className="text-xs capitalize text-(--color-muted)">
         {step.detail}
       </p>
     </div>

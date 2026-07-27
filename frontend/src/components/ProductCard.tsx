@@ -72,11 +72,11 @@ export function ProductCard({
   return (
       <article
       className={[
-        'overflow-hidden rounded-lg border bg-[var(--color-paper)] transition',
-        'hover:-translate-y-0.5 hover:border-[var(--color-forge)]/50',
+        'overflow-hidden rounded-lg border bg-(--color-paper) transition',
+        'hover:-translate-y-0.5 hover:border-(--color-forge)/50',
         selected
-          ? 'border-[var(--color-forge)] shadow-sm'
-          : 'border-[var(--color-ink)]/10',
+          ? 'border-(--color-forge) shadow-sm'
+          : 'border-(--color-ink)/10',
       ].join(' ')}
     >
       <div className="flex items-start justify-between gap-2 p-3 pb-0">
@@ -87,7 +87,7 @@ export function ProductCard({
               checked={selected}
               disabled={selectionDisabled && !selected}
               onChange={() => onToggleSelect(product.id)}
-              className="h-4 w-4 rounded border-[var(--color-ink)]/30"
+              className="h-4 w-4 rounded border-(--color-ink)/30"
               aria-label={`Select ${product.title}`}
             />
           </label>
@@ -101,31 +101,31 @@ export function ProductCard({
           className="mt-2 h-40 w-full object-cover"
         />
       ) : (
-        <div className="mt-2 flex h-40 items-center justify-center bg-[var(--color-ink)]/5 text-sm text-[var(--color-muted)]">
+        <div className="mt-2 flex h-40 items-center justify-center bg-(--color-ink)/5 text-sm text-(--color-muted)">
           No image
         </div>
       )}
       <div className="p-4">
-        <h2 className="font-semibold text-[var(--color-ink)]">{product.title}</h2>
+        <h2 className="font-semibold text-(--color-ink)">{product.title}</h2>
         {priceLabel && (
-          <p className="mt-1 text-sm font-medium text-[var(--color-ink)]">
+          <p className="mt-1 text-sm font-medium text-(--color-ink)">
             {priceLabel}
           </p>
         )}
         <div className="mt-3 flex flex-wrap gap-1">
           {product.vendor && (
-            <span className="rounded-full bg-[var(--color-ink)]/5 px-2 py-0.5 text-xs text-[var(--color-muted)]">
+            <span className="rounded-full bg-(--color-ink)/5 px-2 py-0.5 text-xs text-(--color-muted)">
               {product.vendor}
             </span>
           )}
           {product.productType && (
-            <span className="rounded-full bg-[var(--color-ink)]/5 px-2 py-0.5 text-xs text-[var(--color-muted)]">
+            <span className="rounded-full bg-(--color-ink)/5 px-2 py-0.5 text-xs text-(--color-muted)">
               {product.productType}
             </span>
           )}
         </div>
         {error && (
-          <p className="mt-3 text-sm text-[var(--color-danger)]" role="alert">
+          <p className="mt-3 text-sm text-(--color-danger)" role="alert">
             {error}
           </p>
         )}
@@ -134,13 +134,13 @@ export function ProductCard({
             type="button"
             onClick={handleOptimize}
             disabled={optimizing}
-            className="rounded-md bg-[var(--color-forge)] px-3 py-1.5 text-sm font-medium text-[var(--color-paper)] hover:bg-[var(--color-forge-hover)] disabled:opacity-50"
+            className="rounded-md bg-(--color-forge) px-3 py-1.5 text-sm font-medium text-(--color-paper) hover:bg-(--color-forge-hover) disabled:opacity-50"
           >
             {optimizing ? 'Optimizing...' : 'Optimize'}
           </button>
           <Link
             to={`/products/${product.id}/compare`}
-            className="text-sm font-medium text-[var(--color-mint)] hover:underline"
+            className="text-sm font-medium text-(--color-mint) hover:underline"
           >
             View compare
           </Link>

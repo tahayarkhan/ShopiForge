@@ -8,11 +8,11 @@ export type ToastMessage = {
 
 const variantStyles: Record<ToastVariant, string> = {
   success:
-    'border-[var(--color-mint)]/30 bg-[var(--color-mint)]/10 text-[var(--color-mint)]',
+    'border-(--color-mint)/30 bg-(--color-mint)/10 text-(--color-mint)',
   error:
-    'border-[var(--color-danger)]/30 bg-[var(--color-danger)]/10 text-[var(--color-danger)]',
+    'border-(--color-danger)/30 bg-(--color-danger)/10 text-(--color-danger)',
   info:
-    'border-[var(--color-ink)]/15 bg-[var(--color-ink)]/5 text-[var(--color-ink)]',
+    'border-(--color-ink)/15 bg-(--color-ink)/5 text-(--color-ink)',
 };
 
 type ToastProps = {

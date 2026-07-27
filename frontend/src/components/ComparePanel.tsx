@@ -11,11 +11,11 @@ function HtmlPane({ html, label }: { html: string; label: string }) {
   const clean = sanitizeHtml(html || '');
   return (
     <div>
-      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[var(--color-muted)]">
+      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-(--color-muted)">
         {label}
       </p>
       <div
-        className="max-h-80 max-w-none overflow-y-auto rounded-md border border-[var(--color-ink)]/10 bg-[var(--color-paper)] p-3 text-sm leading-6 text-[var(--color-ink)]"
+        className="max-h-80 max-w-none overflow-y-auto rounded-md border border-(--color-ink)/10 bg-(--color-paper) p-3 text-sm leading-6 text-(--color-ink)"
         dangerouslySetInnerHTML={{ __html: clean }}
       />
     </div>
@@ -42,9 +42,9 @@ function TagChip({
 }) {
   const styles = {
     removed:
-      'bg-[var(--color-danger)]/10 text-[var(--color-danger)] line-through',
-    added: 'bg-[var(--color-mint)]/15 text-[var(--color-mint)]',
-    shared: 'bg-[var(--color-ink)]/5 text-[var(--color-muted)]',
+      'bg-(--color-danger)/10 text-(--color-danger) line-through',
+    added: 'bg-(--color-mint)/15 text-(--color-mint)',
+    shared: 'bg-(--color-ink)/5 text-(--color-muted)',
   }[kind];
 
   return (
@@ -70,7 +70,7 @@ export function ComparePanel({ compareData }: ComparePanelProps) {
 
         <div className="space-y-4">
           <div>
-            <h3 className="text-lg font-semibold text-[var(--color-ink)]">
+            <h3 className="text-lg font-semibold text-(--color-ink)">
               <DiffHighlight before={before.title} after={after.title} side="before" />
             </h3>
             <HtmlPane html={before.descriptionHtml} label="Description" />
@@ -94,7 +94,7 @@ export function ComparePanel({ compareData }: ComparePanelProps) {
 
         <div className="space-y-4">
           <div>
-            <h3 className="text-lg font-semibold text-[var(--color-ink)]">
+            <h3 className="text-lg font-semibold text-(--color-ink)">
               <DiffHighlight before={before.title} after={after.title} side="after" />
             </h3>
             <HtmlPane html={after.descriptionHtml} label="Description" />
@@ -110,29 +110,29 @@ export function ComparePanel({ compareData }: ComparePanelProps) {
           </div>
 
           <div>
-            <h4 className="text-sm font-semibold text-[var(--color-ink)]">
+            <h4 className="text-sm font-semibold text-(--color-ink)">
               Bullet points ({after.bulletPoints.length})
             </h4>
-            <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-[var(--color-ink)]">
+            <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-(--color-ink)">
               {after.bulletPoints.map((point) => (
                 <li key={point}>{point}</li>
               ))}
             </ul>
             {after.bulletPoints.length === 0 && (
-              <p className="mt-2 text-sm text-[var(--color-muted)]">None</p>
+              <p className="mt-2 text-sm text-(--color-muted)">None</p>
             )}
           </div>
 
           
           <div>
-            <h4 className="text-sm font-semibold text-[var(--color-ink)]">
+            <h4 className="text-sm font-semibold text-(--color-ink)">
               SEO keywords ({after.seoKeywords.length})
             </h4>
             <div className="mt-2 flex flex-wrap gap-2">
               {after.seoKeywords.map((kw) => (
                 <span
                   key={kw}
-                  className="rounded-full bg-[var(--color-forge)]/10 px-2.5 py-1 text-xs font-medium text-[var(--color-forge)]"
+                  className="rounded-full bg-(--color-forge)/10 px-2.5 py-1 text-xs font-medium text-(--color-forge)"
                 >
                   {kw}
                 </span>

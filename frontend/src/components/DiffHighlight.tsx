@@ -80,7 +80,7 @@ type DiffPart = {
             return (
               <span
                 key={idx}
-                className="mx-0.5 rounded bg-[var(--color-danger)]/15 px-0.5 text-[var(--color-danger)] line-through"
+                className="mx-0.5 rounded bg-(--color-danger)/15 px-0.5 text-(--color-danger) line-through"
               >
                 {idx > 0 ? ' ' : ''}
                 {part.text}
@@ -92,7 +92,7 @@ type DiffPart = {
           return (
             <span
               key={idx}
-              className="mx-0.5 rounded bg-[var(--color-mint)]/20 px-0.5 text-[var(--color-mint)]"
+              className="mx-0.5 rounded bg-(--color-mint)/20 px-0.5 text-(--color-mint)"
             >
               {idx > 0 ? ' ' : ''}
               {part.text}

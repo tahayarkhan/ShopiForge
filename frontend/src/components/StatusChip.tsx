@@ -22,11 +22,11 @@ function familyForStatus(status: string): StatusFamily {
 }
 
 const familyStyles: Record<StatusFamily, string> = {
-  neutral: 'bg-[var(--color-muted)]/15 text-[var(--color-muted)]',
+  neutral: 'bg-(--color-muted)/15 text-(--color-muted)',
   active:
-    'animate-pulse-soft bg-[var(--color-forge)]/15 text-[var(--color-forge)]',
-  success: 'bg-[var(--color-mint)]/15 text-[var(--color-mint)]',
-  danger: 'bg-[var(--color-danger)]/15 text-[var(--color-danger)]',
+    'animate-pulse-soft bg-(--color-forge)/15 text-(--color-forge)',
+  success: 'bg-(--color-mint)/15 text-(--color-mint)',
+  danger: 'bg-(--color-danger)/15 text-(--color-danger)',
   warning: 'bg-amber-500/15 text-amber-700',
 };
 

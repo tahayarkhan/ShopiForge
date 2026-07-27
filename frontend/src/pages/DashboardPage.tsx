@@ -146,7 +146,7 @@ export function DashboardPage() {
     return (
       <div>
         <h1
-          className="text-2xl font-semibold text-[var(--color-ink)]"
+          className="text-2xl font-semibold text-(--color-ink)"
           style={{ fontFamily: 'var(--font-display)' }}
         >
           Product Dashboard
@@ -155,7 +155,7 @@ export function DashboardPage() {
           {Array.from({ length: 6 }).map((_, i) => (
             <div
               key={i}
-              className="space-y-3 rounded-lg border border-[var(--color-ink)]/10 p-4"
+              className="space-y-3 rounded-lg border border-(--color-ink)/10 p-4"
             >
               <Skeleton className="h-36 w-full" />
               <Skeleton className="h-4 w-3/4" />
@@ -223,31 +223,31 @@ export function DashboardPage() {
 
         {/* Stats strip */}
         <div className="mt-6 flex flex-wrap gap-3 text-sm">
-          <div className="rounded-lg border border-[var(--color-ink)]/10 px-4 py-3">
-            <p className="text-[var(--color-muted)]">Products</p>
-            <p className="mt-0.5 text-lg font-semibold text-[var(--color-ink)]">
+          <div className="rounded-lg border border-(--color-ink)/10 px-4 py-3">
+            <p className="text-(--color-muted)">Products</p>
+            <p className="mt-0.5 text-lg font-semibold text-(--color-ink)">
               {products.length}
             </p>
           </div>
 
-          <div className="rounded-lg border border-[var(--color-ink)]/10 px-4 py-3">
-            <p className="text-[var(--color-muted)]">Active / Draft</p>
-            <p className="mt-0.5 text-lg font-semibold text-[var(--color-ink)]">
+          <div className="rounded-lg border border-(--color-ink)/10 px-4 py-3">
+            <p className="text-(--color-muted)">Active / Draft</p>
+            <p className="mt-0.5 text-lg font-semibold text-(--color-ink)">
               {activeCount} / {draftCount}
             </p>
           </div>
 
-          <div className="rounded-lg border border-[var(--color-ink)]/10 px-4 py-3">
-            <p className="text-[var(--color-muted)]">Last sync</p>
-            <p className="mt-0.5 text-lg font-semibold text-[var(--color-ink)]">
+          <div className="rounded-lg border border-(--color-ink)/10 px-4 py-3">
+            <p className="text-(--color-muted)">Last sync</p>
+            <p className="mt-0.5 text-lg font-semibold text-(--color-ink)">
               {formatSyncLabel(latestSyncedAt)}
             </p>
           </div>
 
           {shop && (
-            <div className="rounded-lg border border-[var(--color-ink)]/10 px-4 py-3">
-              <p className="text-[var(--color-muted)]">Shop</p>
-              <p className="mt-0.5 flex items-center gap-2 font-semibold text-[var(--color-ink)]">
+            <div className="rounded-lg border border-(--color-ink)/10 px-4 py-3">
+              <p className="text-(--color-muted)">Shop</p>
+              <p className="mt-0.5 flex items-center gap-2 font-semibold text-(--color-ink)">
                 <span className="capitalize">{shop.plan}</span>
                 <span
                   className={[
@@ -275,7 +275,7 @@ export function DashboardPage() {
 
 
         <div
-          className="inline-flex rounded-lg border border-[var(--color-ink)]/15 p-0.5"
+          className="inline-flex rounded-lg border border-(--color-ink)/15 p-0.5"
           role="group"
           aria-label="Optimization tone"
         >
@@ -287,8 +287,8 @@ export function DashboardPage() {
               className={[
                 'rounded-md px-3 py-1.5 text-sm capitalize transition',
                 tone === t
-                  ? 'bg-[var(--color-forge)] text-[var(--color-paper)]'
-                  : 'text-[var(--color-muted)] hover:text-[var(--color-ink)]',
+                  ? 'bg-(--color-forge) text-(--color-paper)'
+                  : 'text-(--color-muted) hover:text-(--color-ink)',
               ].join(' ')}
             >
               {t}

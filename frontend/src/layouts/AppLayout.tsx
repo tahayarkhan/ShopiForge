@@ -48,7 +48,7 @@ export function AppLayout() {
     <div className="min-h-screen">
       {/* 2.2 — header surface (not flat white) */}
       <header
-        className="border-b border-[var(--color-ink)]/10 bg-[var(--color-paper)]/80 backdrop-blur-md"
+        className="border-b border-(--color-ink)/10 bg-(--color-paper)/80 backdrop-blur-md"
       >
         {/* Same max width as <main> so header + page content align */}
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
@@ -59,7 +59,7 @@ export function AppLayout() {
           >
             <ForgeMark />
             <span
-              className="text-lg font-semibold tracking-tight text-[var(--color-ink)]"
+              className="text-lg font-semibold tracking-tight text-(--color-ink)"
               style={{ fontFamily: 'var(--font-display)' }}
             >
               ShopiForge
@@ -74,8 +74,8 @@ export function AppLayout() {
                 [
                   'transition-colors',
                   isActive
-                    ? 'font-semibold text-[var(--color-forge)]'
-                    : 'text-[var(--color-muted)] hover:text-[var(--color-ink)]',
+                    ? 'font-semibold text-(--color-forge)'
+                    : 'text-(--color-muted) hover:text-(--color-ink)',
                 ].join(' ')
               }
             >
@@ -84,7 +84,7 @@ export function AppLayout() {
 
             {/* Right slot for shop domain — wire in Step 3.
                 Keep the placeholder so the layout already has a home for it. */}
-            {/* <span className="text-[var(--color-muted)]">mystore.myshopify.com</span> */}
+            {/* <span className="text-(--color-muted)">mystore.myshopify.com</span> */}
           </nav>
         </div>
       </header>
