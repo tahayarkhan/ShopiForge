@@ -52,8 +52,11 @@ export function JobDetailPage() {
   if (!id) {
     return (
       <div>
-        <Link to="/dashboard" className="text-sm text-blue-600 hover:underline">
-          Back to dashboard
+        <Link
+          to="/dashboard"
+          className="text-sm text-(--color-mint) hover:underline"
+        >
+          ← Back to dashboard
         </Link>
         <p className="mt-4 text-red-600">Missing job id</p>
       </div>
@@ -62,8 +65,11 @@ export function JobDetailPage() {
 
   return (
     <div className="animate-fade-in mt-6 space-y-4">
-      <Link to="/dashboard" className="text-sm text-blue-600 hover:underline">
-        Back to dashboard
+      <Link
+          to="/dashboard"
+          className="text-sm text-(--color-mint) hover:underline"
+        >
+          ← Back to dashboard
       </Link>
 
       <h1 className="mt-4 text-2xl font-semibold text-slate-900">

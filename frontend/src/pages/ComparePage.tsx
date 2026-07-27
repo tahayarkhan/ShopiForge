@@ -132,8 +132,11 @@ export function ComparePage() {
   if (state === 'loading') {
     return (
       <div>
-        <Link to="/dashboard" className="text-sm text-(--color-mint) hover:underline">
-          Back to dashboard
+        <Link
+          to="/dashboard"
+          className="text-sm text-(--color-mint) hover:underline"
+        >
+          ← Back to dashboard
         </Link>
         <div className="mt-6 grid gap-6 md:grid-cols-2">
           {[0, 1].map((col) => (
@@ -156,38 +159,41 @@ export function ComparePage() {
     );
   }
 
-
   if (state === 'not_found' || !compare) {
     return (
-      <div>
-        <Link to="/dashboard" className="text-sm text-blue-600 hover:underline">
-          Back to dashboard
+      <div className="animate-fade-in mx-auto max-w-lg py-16 text-center">
+        <h1
+          className="mt-8 text-2xl font-semibold text-(--color-ink) sm:text-3xl"
+          style={{ fontFamily: 'var(--font-display)' }}
+        >
+          No comparison yet
+        </h1>
+  
+        <p className="mt-3 text-(--color-muted)">
+          {error ??
+            'Optimize this product from the dashboard to generate a before/after comparison.'}
+        </p>
+  
+        <Link
+          to="/dashboard"
+          className="mt-8 inline-flex rounded-md bg-(--color-forge) px-5 py-2.5 text-sm font-medium text-(--color-paper) transition-colors hover:bg-(--color-forge-hover)"
+        >
+          Go to dashboard
         </Link>
-        <div className="mt-6 rounded-lg border border-slate-200 bg-white p-6">
-          <h1 className="text-xl font-semibold text-slate-900">
-            No optimization result found
-          </h1>
-          <p className="mt-2 text-slate-600">
-            {error ??
-              'Optimize this product from the dashboard to generate a before/after comparison.'}
-          </p>
-          <Link
-            to="/dashboard"
-            className="mt-4 inline-block text-sm font-medium text-blue-600 hover:underline"
-          >
-            Back to dashboard →
-          </Link>
-        </div>
       </div>
     );
   }
 
 
+
   if (state === 'error') {
     return (
       <div>
-        <Link to="/dashboard" className="text-sm text-(--color-mint) hover:underline">
-          Back to dashboard
+        <Link
+          to="/dashboard"
+          className="text-sm text-(--color-mint) hover:underline"
+        >
+          ← Back to dashboard
         </Link>
         <div
           className="mt-6 rounded-lg border border-(--color-danger)/30 bg-(--color-danger)/10 p-4"
@@ -218,8 +224,11 @@ export function ComparePage() {
 
   return (
     <div>
-      <Link to="/dashboard" className="text-sm text-blue-600 hover:underline">
-        Back to dashboard
+      <Link
+          to="/dashboard"
+          className="text-sm text-(--color-mint) hover:underline"
+        >
+          ← Back to dashboard
       </Link>
       <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
