@@ -3,9 +3,53 @@ import { useEffect, useState } from 'react';
 import { ComparePanel } from '../components/ComparePanel';
 import { ApiError, getProductCompare } from '../lib/api';
 import type { CompareData, CompareResponse } from '../types';
+import { Skeleton } from '../components/Skeleton';
+
 
 type PageState = 'loading' | 'ready' | 'error' | 'not_found';
 
+type StepState = 'done' | 'warn' | 'pending' | 'failed' | 'skipped';
+
+
+function buildTimeline(compare: CompareResponse) {
+  const validatedOk =
+    !compare.usedFallback && compare.validationErrors == null;
+
+  const push = compare.shopifyPushStatus ?? 'skipped';
+
+  return [
+    {
+      key: 'optimized',
+      label: 'Optimized',
+      state: 'done' as StepState, // page loaded with a result
+      detail: `Tone: ${compare.tone}`,
+    },
+    {
+      key: 'validated',
+      label: 'Validated',
+      state: (validatedOk ? 'done' : 'warn') as StepState,
+      detail: validatedOk
+        ? 'Passed validation'
+        : compare.usedFallback
+          ? 'Fallback formatting used'
+          : 'Validation warnings',
+    },
+    {
+      key: 'pushed',
+      label: 'Pushed',
+      state: (
+        push === 'pushed'
+          ? 'done'
+          : push === 'failed'
+            ? 'failed'
+            : push === 'pending'
+              ? 'pending'
+              : 'skipped'
+      ) as StepState,
+      detail: push,
+    },
+  ];
+}
 
 function pushStatusLabel(status: string): string {
   switch (status) {
@@ -45,6 +89,7 @@ export function ComparePage() {
   const [state, setState] = useState<PageState>('loading');
   const [error, setError] = useState<string | null>(null);
   const [compare, setCompare] = useState<CompareResponse | null>(null);
+  
 
   useEffect(() => {
     if (!id) {
@@ -87,10 +132,26 @@ export function ComparePage() {
   if (state === 'loading') {
     return (
       <div>
-        <Link to="/dashboard" className="text-sm text-blue-600 hover:underline">
+        <Link to="/dashboard" className="text-sm text-[var(--color-mint)] hover:underline">
           Back to dashboard
         </Link>
-        <p className="mt-6 text-slate-600">Loading compare data...</p>
+        <div className="mt-6 grid gap-6 md:grid-cols-2">
+          {[0, 1].map((col) => (
+            <div
+              key={col}
+              className="space-y-3 rounded-lg border border-[var(--color-ink)]/10 p-5"
+            >
+              <Skeleton className="h-4 w-20" />
+              <Skeleton className="h-6 w-3/4" />
+              <Skeleton className="h-40 w-full" />
+              <Skeleton className="h-4 w-1/2" />
+              <div className="flex gap-2">
+                <Skeleton className="h-6 w-16 rounded-full" />
+                <Skeleton className="h-6 w-16 rounded-full" />
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
@@ -125,12 +186,18 @@ export function ComparePage() {
   if (state === 'error') {
     return (
       <div>
-        <Link to="/dashboard" className="text-sm text-blue-600 hover:underline">
+        <Link to="/dashboard" className="text-sm text-[var(--color-mint)] hover:underline">
           Back to dashboard
         </Link>
-        <p className="mt-6 text-sm text-red-600" role="alert">
-          {error}
-        </p>
+        <div
+          className="mt-6 rounded-lg border border-[var(--color-danger)]/30 bg-[var(--color-danger)]/10 p-4"
+          role="alert"
+        >
+          <p className="text-[var(--color-danger)]">{error}</p>
+          <Link to="/dashboard" className="mt-3 inline-block text-sm font-medium underline">
+            Back to dashboard
+          </Link>
+        </div>
       </div>
     );
   }
@@ -141,6 +208,8 @@ export function ComparePage() {
     before: compare.before,
     after: compare.after,
   };
+
+  const steps = buildTimeline(compare);
   
   const showFallbackWarning = compare.usedFallback || compare.validationErrors != null;
 
@@ -163,6 +232,10 @@ export function ComparePage() {
           <span className="w-fit rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-700">
             AI optimization result
           </span>
+
+          
+          
+
           <span
             className={`w-fit rounded-full px-3 py-1 text-sm font-medium ${pushStatusBadgeClass(pushStatus)}`}
           >
@@ -206,6 +279,53 @@ export function ComparePage() {
           </p>
         </div>
       )}
+
+
+<div className="mt-6 grid grid-cols-3">
+  {steps.map((step, i) => (
+    <div
+      key={step.key}
+      className="relative flex flex-col items-center text-center"
+    >
+      {/* Line from this dot's center → next dot's center */}
+      {i < steps.length - 1 && (
+        <div
+          className={[
+            'absolute top-4 left-1/2 z-0 h-0.5 w-full',
+            steps[i + 1]!.state === 'done' || steps[i + 1]!.state === 'warn'
+              ? 'bg-[var(--color-mint)]/50'
+              : steps[i + 1]!.state === 'failed'
+                ? 'bg-[var(--color-danger)]/40'
+                : 'bg-[var(--color-ink)]/15',
+          ].join(' ')}
+          aria-hidden="true"
+        />
+      )}
+
+      <div
+        className={[
+          'relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold',
+          step.state === 'done' && 'bg-[var(--color-mint)] text-[var(--color-paper)]',
+          step.state === 'warn' && 'bg-amber-500 text-white',
+          step.state === 'failed' && 'bg-[var(--color-danger)] text-[var(--color-paper)]',
+          step.state === 'pending' && 'bg-[var(--color-forge)]/20 text-[var(--color-forge)]',
+          step.state === 'skipped' && 'bg-[var(--color-ink)]/10 text-[var(--color-muted)]',
+        ]
+          .filter(Boolean)
+          .join(' ')}
+      >
+        {i + 1}
+      </div>
+
+      <p className="mt-3 text-sm font-semibold text-[var(--color-ink)]">
+        {step.label}
+      </p>
+      <p className="text-xs capitalize text-[var(--color-muted)]">
+        {step.detail}
+      </p>
+    </div>
+  ))}
+</div>
 
       <div className="mt-6">
         <ComparePanel compareData={compareData} />
