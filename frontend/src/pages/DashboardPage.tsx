@@ -169,7 +169,7 @@ export function DashboardPage() {
 
   if (state === 'unauthenticated') {
     return (
-      <div className="mx-auto max-w-lg py-16 text-center">
+      <div className="animate-fade-in mx-auto max-w-lg py-16 text-center">
         <h1
           className="text-3xl font-semibold text-(--color-ink)"
           style={{ fontFamily: 'var(--font-display)' }}
